@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-black: #050505;
+  --color-brand-secondary: #0F172A;
+  --color-brand-blue: #3B82F6;
+  --color-brand-purple: #7C3AED;
+  
+  --color-text-main: #FFFFFF;
+  --color-text-muted: #9CA3AF;
+  
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Outfit', system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  :root {
+    --bg-color: #050505;
+    --text-color: #FFFFFF;
+  }
+  
+  html {
+    scroll-behavior: initial; /* Lenis will handle this */
+  }
+
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: var(--font-sans);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
+  
+  .text-gradient {
+    background: linear-gradient(to right, var(--color-brand-blue), var(--color-brand-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .glow-effect {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+  }
+}
+
+/* Custom Cursor Styles */
+.custom-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  background-color: white;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: difference;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s, height 0.3s;
+}
+
+.custom-cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s, height 0.3s, border-color 0.3s;
+}
+
+.cursor-hover .custom-cursor {
+  width: 40px;
+  height: 40px;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.cursor-hover .custom-cursor-ring {
+  width: 60px;
+  height: 60px;
+  border-color: rgba(255, 255, 255, 0);
+}
