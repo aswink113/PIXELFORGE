@@ -143,7 +143,7 @@ export const Testimonials = () => {
           </div>
 
           {/* Prev / Next */}
-          <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 flex justify-between px-2 md:-mx-16 pointer-events-none">
+          <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 hidden md:flex justify-between px-2 md:-mx-16 pointer-events-none">
             <button
               onClick={() => setActive((prev) => (prev - 1 + testimonials.length) % testimonials.length)}
               className="pointer-events-auto w-10 h-10 rounded-full border border-border-color bg-card-bg hover:bg-card-hover-bg flex items-center justify-center text-text-muted hover:text-text-main transition-all cursor-none hover-target backdrop-blur-sm"

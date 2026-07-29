@@ -148,7 +148,7 @@ export const Process = () => {
                   <motion.div 
                     whileInView={{ scale: 1.25 }}
                     viewport={{ margin: "-120px" }}
-                    className="absolute left-0 md:left-1/2 md:-translate-x-1/2 top-6 w-[14px] h-[14px] rounded-full bg-blue-500 border-2 border-brand-bg ring-4 ring-blue-500/20 flex-shrink-0 transition-colors duration-300" 
+                    className="absolute left-[20px] md:left-1/2 md:-translate-x-1/2 top-6 w-[14px] h-[14px] rounded-full bg-blue-500 border-2 border-brand-bg ring-4 ring-blue-500/20 flex-shrink-0 transition-colors duration-300" 
                   />
                 </motion.div>
               );

@@ -113,3 +113,9 @@
   height: 60px;
   border-color: rgba(var(--cursor-color), 0);
 }
+
+@media (hover: none) and (pointer: coarse) {
+  body, button, a, .cursor-none, .hover-target {
+    cursor: auto !important;
+  }
+}

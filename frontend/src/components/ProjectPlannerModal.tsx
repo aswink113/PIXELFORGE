@@ -102,7 +102,7 @@ export const ProjectPlannerModal = ({ isOpen, onClose, initialCategory = '' }: P
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
             transition={{ type: "spring", duration: 0.6 }}
-            className="glass-card max-w-2xl w-full p-8 md:p-12 rounded-3xl relative border border-white/10 shadow-[0_0_80px_rgba(59,130,246,0.15)] flex flex-col justify-between min-h-[500px]"
+            className="glass-card max-w-2xl w-full p-6 md:p-12 rounded-3xl relative border border-white/10 shadow-[0_0_80px_rgba(59,130,246,0.15)] flex flex-col justify-between min-h-[500px] max-h-[90vh] overflow-y-auto"
           >
             {/* Close Button */}
             <button 

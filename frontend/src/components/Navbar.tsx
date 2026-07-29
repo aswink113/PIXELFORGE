@@ -16,6 +16,15 @@ export const Navbar = ({ onOpenPlanner }: { onOpenPlanner: () => void }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+    }
+    return () => document.body.classList.remove('overflow-hidden');
+  }, [menuOpen]);
+
   const navLinks = [
     { name: 'Home', href: '/', isRoute: true },
     { name: 'Work', href: '/work', isRoute: true },

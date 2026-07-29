@@ -199,19 +199,19 @@ export const Hero = ({ onOpenPlanner }: { onOpenPlanner?: () => void }) => {
                 initial={{ y: '105%', opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 1.1, delay: 0.7, ease: EASE }}
-                className="block text-[2.4rem] sm:text-[3.2rem] md:text-[4rem] lg:text-[4.8rem] text-zinc-900"
+                className="block text-[1.8rem] min-[400px]:text-[2.4rem] sm:text-[3.2rem] md:text-[4rem] lg:text-[4.8rem] text-zinc-900"
               >
                 We Craft Premium
               </motion.span>
             </div>
 
             {/* Line 2 — static "Digital" + cycling word pill */}
-            <div className="overflow-hidden flex items-center justify-center gap-3 my-2">
+            <div className="overflow-hidden flex flex-wrap items-center justify-center gap-2 sm:gap-3 my-2">
               <motion.span
                 initial={{ y: '105%', opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 1.1, delay: 0.85, ease: EASE }}
-                className="inline-block text-[2.4rem] sm:text-[3.2rem] md:text-[4rem] lg:text-[4.8rem] text-zinc-900"
+                className="inline-block text-[1.8rem] min-[400px]:text-[2.4rem] sm:text-[3.2rem] md:text-[4rem] lg:text-[4.8rem] text-zinc-900"
               >
                 Digital
               </motion.span>
@@ -221,7 +221,7 @@ export const Hero = ({ onOpenPlanner }: { onOpenPlanner?: () => void }) => {
                 initial={{ opacity: 0, scale: 0.85 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.9, delay: 1.0, ease: EASE }}
-                className="relative overflow-hidden rounded-[14px] px-5 py-1.5 flex items-center"
+                className="relative overflow-hidden rounded-[14px] px-3 sm:px-5 py-1.5 flex items-center"
                 style={{
                   background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A855F7 100%)',
                   boxShadow: '0 6px 28px rgba(99,102,241,0.3)',
@@ -241,7 +241,7 @@ export const Hero = ({ onOpenPlanner }: { onOpenPlanner?: () => void }) => {
                     animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
                     exit={{ y: '-80%', opacity: 0, filter: 'blur(4px)' }}
                     transition={{ duration: 0.55, ease: EASE }}
-                    className="relative z-10 text-[2rem] sm:text-[2.5rem] md:text-[3.2rem] lg:text-[3.8rem] font-bold text-white whitespace-nowrap"
+                    className="relative z-10 text-[1.5rem] min-[400px]:text-[2rem] sm:text-[2.5rem] md:text-[3.2rem] lg:text-[3.8rem] font-bold text-white whitespace-nowrap"
                   >
                     {cycleWords[wordIndex]}
                   </motion.span>
@@ -255,7 +255,7 @@ export const Hero = ({ onOpenPlanner }: { onOpenPlanner?: () => void }) => {
                 initial={{ y: '105%', opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 1.1, delay: 1.0, ease: EASE }}
-                className="block text-[2.4rem] sm:text-[3.2rem] md:text-[4rem] lg:text-[4.8rem] text-gradient"
+                className="block text-[1.8rem] min-[400px]:text-[2.4rem] sm:text-[3.2rem] md:text-[4rem] lg:text-[4.8rem] text-gradient"
               >
                 That Define The Future
               </motion.span>
