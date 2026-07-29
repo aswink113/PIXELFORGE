@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { getTestimonials } from '../utils/db';
 
 interface Testimonial {
   id: string;
@@ -45,24 +46,20 @@ export const Testimonials = () => {
   const [testimonials, setTestimonials] = useState<Testimonial[]>(defaultTestimonials);
 
   useEffect(() => {
-    const loadTestimonials = async () => {
-      try {
-        const res = await fetch('http://localhost:8000/api/testimonials');
-        const json = await res.json();
-        if (json.data && json.data.length > 0) {
-          setTestimonials(json.data);
-        }
-      } catch (err) {
-        console.error('Failed to fetch testimonials from backend', err);
+    try {
+      const data = getTestimonials();
+      if (data && data.length > 0) {
+        setTestimonials(data);
       }
-    };
-    loadTestimonials();
+    } catch (err) {
+      console.error('Failed to fetch testimonials from local DB', err);
+    }
   }, []);
 
   return (
-    <section ref={ref} className="relative py-28 overflow-hidden">
+    <section ref={ref} className="relative py-28 overflow-hidden bg-brand-bg transition-colors duration-300">
       {/* Top divider */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-px bg-gradient-to-r from-transparent via-border-color to-transparent" />
 
       {/* Blob */}
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-blue-700/6 rounded-full blur-[200px] pointer-events-none" />
@@ -78,7 +75,7 @@ export const Testimonials = () => {
           <span className="inline-block text-xs uppercase tracking-[0.3em] text-pink-400 font-semibold mb-6 px-4 py-1.5 rounded-full border border-pink-500/20 bg-pink-500/5">
             Client Love
           </span>
-          <h2 className="text-4xl md:text-5xl font-bold font-heading leading-[1.1] tracking-tight text-white">
+          <h2 className="text-4xl md:text-5xl font-bold font-heading leading-[1.1] tracking-tight text-text-main">
             What Our{' '}
             <span className="text-gradient">Clients Say</span>
           </h2>
@@ -98,18 +95,18 @@ export const Testimonials = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5, ease: [0.76, 0, 0.24, 1] }}
-              className="glass-card rounded-3xl p-10 md:p-14 text-center border border-white/5 relative overflow-hidden"
+              className="glass-card rounded-3xl p-10 md:p-14 text-center border border-border-color relative overflow-hidden"
             >
               {/* Big quote mark */}
-              <span className="absolute top-6 left-10 text-8xl font-serif text-white/5 leading-none select-none">"</span>
+              <span className="absolute top-6 left-10 text-8xl font-serif text-text-muted/10 leading-none select-none">"</span>
 
-              <p className="relative text-xl md:text-2xl text-gray-300 leading-relaxed font-light max-w-3xl mx-auto mb-10">
+              <p className="relative text-xl md:text-2xl text-text-main leading-relaxed font-light max-w-3xl mx-auto mb-10">
                 "{testimonials[active].quote}"
               </p>
 
               {/* Avatar + Info */}
               <div className="flex flex-col items-center gap-3">
-                <div className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-zinc-900 border border-white/10 flex-shrink-0">
+                <div className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-zinc-900 border border-border-color flex-shrink-0">
                   {testimonials[active].photo_url ? (
                     <img 
                       src={testimonials[active].photo_url} 
@@ -123,8 +120,8 @@ export const Testimonials = () => {
                   )}
                 </div>
                 <div>
-                  <p className="text-white font-semibold text-base">{testimonials[active].author}</p>
-                  <p className="text-gray-500 text-sm">{testimonials[active].role}</p>
+                  <p className="text-text-main font-semibold text-base">{testimonials[active].author}</p>
+                  <p className="text-text-muted text-sm">{testimonials[active].role}</p>
                 </div>
               </div>
             </motion.div>
@@ -139,7 +136,7 @@ export const Testimonials = () => {
                 className={`cursor-none hover-target transition-all duration-300 rounded-full ${
                   i === active
                     ? 'w-8 h-2 bg-blue-500'
-                    : 'w-2 h-2 bg-white/20 hover:bg-white/40'
+                    : 'w-2 h-2 bg-text-muted/30 hover:bg-text-main/50'
                 }`}
               />
             ))}
@@ -149,7 +146,7 @@ export const Testimonials = () => {
           <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 flex justify-between px-2 md:-mx-16 pointer-events-none">
             <button
               onClick={() => setActive((prev) => (prev - 1 + testimonials.length) % testimonials.length)}
-              className="pointer-events-auto w-10 h-10 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-all cursor-none hover-target backdrop-blur-sm"
+              className="pointer-events-auto w-10 h-10 rounded-full border border-border-color bg-card-bg hover:bg-card-hover-bg flex items-center justify-center text-text-muted hover:text-text-main transition-all cursor-none hover-target backdrop-blur-sm"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -157,7 +154,7 @@ export const Testimonials = () => {
             </button>
             <button
               onClick={() => setActive((prev) => (prev + 1) % testimonials.length)}
-              className="pointer-events-auto w-10 h-10 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-all cursor-none hover-target backdrop-blur-sm"
+              className="pointer-events-auto w-10 h-10 rounded-full border border-border-color bg-card-bg hover:bg-card-hover-bg flex items-center justify-center text-text-muted hover:text-text-main transition-all cursor-none hover-target backdrop-blur-sm"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

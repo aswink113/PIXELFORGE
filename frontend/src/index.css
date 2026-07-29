@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-black: #050505;
-  --color-brand-secondary: #0F172A;
-  --color-brand-blue: #3B82F6;
-  --color-brand-purple: #7C3AED;
+  --color-brand-bg: var(--bg-color);
+  --color-brand-secondary: var(--bg-secondary);
+  --color-brand-blue: #6366F1;
+  --color-brand-purple: #8B5CF6;
   
-  --color-text-main: #FFFFFF;
-  --color-text-muted: #9CA3AF;
+  --color-text-main: var(--text-color);
+  --color-text-muted: var(--text-muted);
   
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-heading: 'Outfit', system-ui, -apple-system, sans-serif;
@@ -15,8 +15,18 @@
 
 @layer base {
   :root {
-    --bg-color: #050505;
-    --text-color: #FFFFFF;
+    /* ── Indigo / Lavender Light Theme ── */
+    --bg-color: #EEF0FF;
+    --bg-secondary: #E8EAFF;
+    --text-color: #1E1B4B;
+    --text-muted: #6366A8;
+    --border-color: rgba(99, 102, 241, 0.14);
+    --glass-bg: rgba(255, 255, 255, 0.72);
+    --shadow-color: rgba(99, 102, 241, 0.08);
+    --card-hover-bg: rgba(99, 102, 241, 0.04);
+    --card-bg: rgba(255, 255, 255, 0.55);
+    --cursor-color: 99, 102, 241;
+    --stats-border: rgba(99, 102, 241, 0.14);
   }
   
   html {
@@ -24,7 +34,8 @@
   }
 
   body {
-    background-color: var(--bg-color);
+    background: linear-gradient(150deg, #EBF0FF 0%, #F2EEFF 28%, #F9EEFF 58%, #EBF4FF 100%);
+    background-attachment: fixed;
     color: var(--text-color);
     font-family: var(--font-sans);
     margin: 0;
@@ -41,22 +52,23 @@
 
 @layer utilities {
   .glass-card {
-    background: rgba(15, 23, 42, 0.4);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    background: var(--glass-bg);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 32px 0 var(--shadow-color);
+    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
   }
   
   .text-gradient {
-    background: linear-gradient(to right, var(--color-brand-blue), var(--color-brand-purple));
+    background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A855F7 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
   
   .glow-effect {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+    box-shadow: 0 0 24px rgba(99, 102, 241, 0.35);
   }
 }
 
@@ -67,13 +79,13 @@
   left: 0;
   width: 12px;
   height: 12px;
-  background-color: white;
+  background-color: rgb(var(--cursor-color));
   border-radius: 50%;
   pointer-events: none;
   z-index: 9999;
-  mix-blend-mode: difference;
+  mix-blend-mode: multiply;
   transform: translate(-50%, -50%);
-  transition: width 0.3s, height 0.3s;
+  transition: width 0.3s, height 0.3s, background-color 0.3s ease;
 }
 
 .custom-cursor-ring {
@@ -82,22 +94,22 @@
   left: 0;
   width: 40px;
   height: 40px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(var(--cursor-color), 0.4);
   border-radius: 50%;
   pointer-events: none;
   z-index: 9998;
   transform: translate(-50%, -50%);
-  transition: width 0.3s, height 0.3s, border-color 0.3s;
+  transition: width 0.3s, height 0.3s, border-color 0.3s ease;
 }
 
 .cursor-hover .custom-cursor {
   width: 40px;
   height: 40px;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(var(--cursor-color), 0.12);
 }
 
 .cursor-hover .custom-cursor-ring {
   width: 60px;
   height: 60px;
-  border-color: rgba(255, 255, 255, 0);
+  border-color: rgba(var(--cursor-color), 0);
 }

@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { motion, useInView, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 
 const services = [
   {
@@ -79,11 +79,25 @@ export const ServicesSection = () => {
   const inView = useInView(ref, { once: true, margin: '-80px' });
   const [hovered, setHovered] = useState<number | null>(null);
 
+  // Scroll parallax for ambient blobs
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"]
+  });
+  const blob1Y = useTransform(scrollYProgress, [0, 1], [-80, 80]);
+  const blob2Y = useTransform(scrollYProgress, [0, 1], [80, -80]);
+
   return (
-    <section id="services" ref={ref} className="relative py-28 overflow-hidden">
-      {/* Ambient blobs */}
-      <div className="absolute left-0 top-1/3 w-[500px] h-[500px] bg-blue-700/8 rounded-full blur-[200px] pointer-events-none" />
-      <div className="absolute right-0 bottom-1/4 w-[400px] h-[400px] bg-purple-700/8 rounded-full blur-[160px] pointer-events-none" />
+    <section id="services" ref={ref} className="relative py-28 overflow-hidden bg-brand-bg transition-colors duration-300">
+      {/* Ambient blobs with scroll parallax */}
+      <motion.div 
+        style={{ y: blob1Y }}
+        className="absolute left-0 top-1/4 w-[500px] h-[500px] bg-blue-700/8 rounded-full blur-[200px] pointer-events-none" 
+      />
+      <motion.div 
+        style={{ y: blob2Y }}
+        className="absolute right-0 bottom-1/4 w-[400px] h-[400px] bg-purple-700/8 rounded-full blur-[160px] pointer-events-none" 
+      />
 
       <div className="max-w-6xl mx-auto px-6">
         {/* Header */}
@@ -97,12 +111,12 @@ export const ServicesSection = () => {
             <span className="inline-block text-xs uppercase tracking-[0.3em] text-purple-400 font-semibold mb-6 px-4 py-1.5 rounded-full border border-purple-500/20 bg-purple-500/5">
               What We Do
             </span>
-            <h2 className="text-4xl md:text-5xl font-bold font-heading leading-[1.1] tracking-tight text-white">
+            <h2 className="text-4xl md:text-5xl font-bold font-heading leading-[1.1] tracking-tight text-text-main">
               End-to-End Digital{' '}
               <span className="text-gradient">Services</span>
             </h2>
           </div>
-          <p className="text-gray-400 max-w-sm text-base leading-relaxed md:text-right">
+          <p className="text-text-muted max-w-sm text-base leading-relaxed md:text-right">
             A holistic suite of services designed to take your brand from concept to market-leader.
           </p>
         </motion.div>
@@ -121,15 +135,15 @@ export const ServicesSection = () => {
               onMouseEnter={() => setHovered(i)}
               onMouseLeave={() => setHovered(null)}
               className={`group relative rounded-2xl border p-7 cursor-none overflow-hidden transition-all duration-500 ${
-                hovered === i ? `bg-gradient-to-br ${svc.gradient} ${svc.border}` : 'bg-white/[0.02] border-white/5'
+                hovered === i ? `bg-gradient-to-br ${svc.gradient} ${svc.border}` : 'bg-card-bg border-border-color'
               }`}
             >
               {/* Number */}
-              <span className={`text-xs font-mono font-semibold tracking-widest ${hovered === i ? svc.accent : 'text-gray-600'} transition-colors duration-300`}>
+              <span className={`text-xs font-mono font-semibold tracking-widest ${hovered === i ? svc.accent : 'text-text-muted/60'} transition-colors duration-300`}>
                 {svc.number}
               </span>
 
-              <h3 className="mt-3 mb-3 text-lg font-semibold font-heading text-white leading-snug">
+              <h3 className="mt-3 mb-3 text-lg font-semibold font-heading text-text-main leading-snug">
                 {svc.title}
               </h3>
 
@@ -141,7 +155,7 @@ export const ServicesSection = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.3 }}
-                    className="text-gray-400 text-sm leading-relaxed mb-5"
+                    className="text-text-muted text-sm leading-relaxed mb-5"
                   >
                     {svc.desc}
                   </motion.p>
@@ -152,7 +166,7 @@ export const ServicesSection = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.3 }}
-                    className="text-gray-600 text-sm leading-relaxed mb-5"
+                    className="text-text-muted/50 text-sm leading-relaxed mb-5"
                   >
                     Hover to learn more →
                   </motion.p>
@@ -167,7 +181,7 @@ export const ServicesSection = () => {
                     className={`text-[11px] font-medium px-2.5 py-1 rounded-full border transition-all duration-300 ${
                       hovered === i
                         ? `${svc.accent} ${svc.border} bg-white/5`
-                        : 'text-gray-600 border-white/5 bg-white/[0.02]'
+                        : 'text-text-muted/60 border-border-color bg-card-bg'
                     }`}
                   >
                     {tag}
@@ -177,7 +191,7 @@ export const ServicesSection = () => {
 
               {/* Corner arrow */}
               <div className={`absolute top-6 right-6 w-8 h-8 rounded-full border flex items-center justify-center transition-all duration-500 ${
-                hovered === i ? `${svc.border} ${svc.accent}` : 'border-white/10 text-gray-700'
+                hovered === i ? `${svc.border} ${svc.accent}` : 'border-border-color text-text-muted/40'
               }`}>
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 17L17 7M17 7H7M17 7v10" />

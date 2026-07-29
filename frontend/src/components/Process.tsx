@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useScroll } from 'framer-motion';
 
 const steps = [
   {
@@ -61,12 +61,25 @@ const steps = [
 
 export const Process = () => {
   const ref = useRef<HTMLDivElement>(null);
+  const timelineRef = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-80px' });
 
+  // Scroll timeline progress drawing
+  const { scrollYProgress } = useScroll({
+    target: timelineRef,
+    offset: ["start center", "end center"]
+  });
+
   return (
-    <section id="process" ref={ref} className="relative py-28 overflow-hidden">
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.012)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.012)_1px,transparent_1px)] bg-[size:60px_60px] pointer-events-none" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+    <section id="process" ref={ref} className="relative py-28 overflow-hidden bg-brand-bg transition-colors duration-300">
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: `linear-gradient(rgba(var(--cursor-color), 0.012) 1px, transparent 1px), linear-gradient(90deg, rgba(var(--cursor-color), 0.012) 1px, transparent 1px)`,
+          backgroundSize: '60px 60px'
+        }}
+      />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-px bg-gradient-to-r from-transparent via-border-color to-transparent" />
 
       <div className="max-w-6xl mx-auto px-6">
         {/* Header */}
@@ -79,19 +92,25 @@ export const Process = () => {
           <span className="inline-block text-xs uppercase tracking-[0.3em] text-emerald-400 font-semibold mb-6 px-4 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/5">
             How We Work
           </span>
-          <h2 className="text-4xl md:text-5xl font-bold font-heading leading-[1.1] tracking-tight text-white">
+          <h2 className="text-4xl md:text-5xl font-bold font-heading leading-[1.1] tracking-tight text-text-main">
             A Process That{' '}
             <span className="text-gradient">Delivers Results</span>
           </h2>
-          <p className="mt-5 text-gray-400 text-lg max-w-xl mx-auto leading-relaxed">
+          <p className="mt-5 text-text-muted text-lg max-w-xl mx-auto leading-relaxed">
             Our proven five-stage framework turns ambiguous ideas into polished, scalable products.
           </p>
         </motion.div>
 
         {/* Timeline */}
-        <div className="relative">
-          {/* Vertical line */}
-          <div className="absolute left-[27px] md:left-1/2 md:-translate-x-px top-0 bottom-0 w-px bg-gradient-to-b from-blue-500/40 via-purple-500/30 to-transparent" />
+        <div ref={timelineRef} className="relative">
+          {/* Vertical track line */}
+          <div className="absolute left-[27px] md:left-1/2 md:-translate-x-px top-0 bottom-0 w-px bg-border-color opacity-30" />
+          
+          {/* Glowing active drawing line */}
+          <motion.div 
+            style={{ scaleY: scrollYProgress, originY: 0 }}
+            className="absolute left-[27px] md:left-1/2 md:-translate-x-px top-0 bottom-0 w-px bg-gradient-to-b from-blue-500 via-purple-500 to-emerald-400" 
+          />
 
           <div className="flex flex-col gap-12">
             {steps.map((step, i) => {
@@ -106,15 +125,15 @@ export const Process = () => {
                 >
                   {/* Content card */}
                   <div className={`w-full md:w-[calc(50%-48px)] ${isEven ? 'md:pr-12 md:text-right' : 'md:pl-12'} pl-16 md:pl-0`}>
-                    <div className="group relative p-6 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] hover:border-blue-500/20 transition-all duration-500">
+                    <div className="group relative p-6 rounded-2xl border border-border-color bg-card-bg hover:bg-card-hover-bg hover:border-blue-500/20 transition-all duration-500">
                       <div className={`flex items-center gap-3 mb-3 ${isEven ? 'md:flex-row-reverse' : ''}`}>
                         <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/15 flex items-center justify-center text-blue-400 flex-shrink-0">
                           {step.icon}
                         </div>
-                        <span className="text-xs font-mono text-gray-600 tracking-widest">{step.step}</span>
+                        <span className="text-xs font-mono text-text-muted/40 tracking-widest">{step.step}</span>
                       </div>
-                      <h3 className="text-white font-semibold text-lg font-heading mb-2">{step.title}</h3>
-                      <p className="text-gray-500 text-sm leading-relaxed mb-4">{step.desc}</p>
+                      <h3 className="text-text-main font-semibold text-lg font-heading mb-2">{step.title}</h3>
+                      <p className="text-text-muted text-sm leading-relaxed mb-4">{step.desc}</p>
                       <span className="inline-flex items-center gap-1.5 text-xs text-blue-400/80 font-mono">
                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -126,7 +145,11 @@ export const Process = () => {
                   </div>
 
                   {/* Centre dot */}
-                  <div className="absolute left-0 md:left-1/2 md:-translate-x-1/2 top-6 w-[14px] h-[14px] rounded-full bg-blue-500 border-2 border-[#050505] ring-4 ring-blue-500/20 flex-shrink-0" />
+                  <motion.div 
+                    whileInView={{ scale: 1.25 }}
+                    viewport={{ margin: "-120px" }}
+                    className="absolute left-0 md:left-1/2 md:-translate-x-1/2 top-6 w-[14px] h-[14px] rounded-full bg-blue-500 border-2 border-brand-bg ring-4 ring-blue-500/20 flex-shrink-0 transition-colors duration-300" 
+                  />
                 </motion.div>
               );
             })}

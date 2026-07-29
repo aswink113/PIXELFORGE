@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { ExternalLink, ArrowRight } from 'lucide-react';
+import { getPortfolio } from '../utils/db';
 
 interface Project {
   id: string;
@@ -23,25 +24,38 @@ interface ProjectProps {
 }
 
 const ProjectCard = ({ title, client, category, gradient, year, photo_url, onInquire }: ProjectProps) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+  
+  // Track scroll progress of this specific card to drive parallax image shift
+  const { scrollYProgress } = useScroll({
+    target: cardRef,
+    offset: ["start end", "end start"]
+  });
+
+  const imageY = useTransform(scrollYProgress, [0, 1], [-30, 30]);
+
   return (
     <motion.div
+      ref={cardRef}
       initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-      className="group relative rounded-3xl overflow-hidden glass-card hover:border-white/15 transition-all duration-500 flex flex-col h-[480px]"
+      className="group relative rounded-3xl overflow-hidden glass-card hover:border-blue-500/35 transition-all duration-500 flex flex-col h-[480px]"
     >
-      {/* Cover image or gradient preview */}
-      <div className="w-full h-64 relative flex items-center justify-center p-8 overflow-hidden bg-zinc-900 border-b border-white/5">
-        {photo_url ? (
-          <img 
-            src={photo_url} 
-            alt={title} 
-            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
-          />
-        ) : (
-          <div className={`absolute inset-0 bg-gradient-to-br ${gradient || 'from-blue-600 via-indigo-600 to-purple-600'}`} />
-        )}
+      {/* Cover image or gradient preview with scroll parallax */}
+      <div className="w-full h-64 relative flex items-center justify-center p-8 overflow-hidden bg-zinc-900 border-b border-border-color">
+        <motion.div style={{ y: imageY }} className="absolute inset-0 w-full h-[120%] -top-[10%]">
+          {photo_url ? (
+            <img 
+              src={photo_url} 
+              alt={title} 
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+            />
+          ) : (
+            <div className={`w-full h-full bg-gradient-to-br ${gradient || 'from-blue-600 via-indigo-600 to-purple-600'}`} />
+          )}
+        </motion.div>
         <div className="absolute inset-0 bg-black/20 mix-blend-overlay" />
         
         {/* Floating elements inside project cover */}
@@ -63,11 +77,11 @@ const ProjectCard = ({ title, client, category, gradient, year, photo_url, onInq
       {/* Info */}
       <div className="p-8 flex flex-col justify-between flex-grow">
         <div>
-          <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+          <div className="flex items-center justify-between text-xs text-text-muted mb-3">
             <span>{category}</span>
             <span>{year}</span>
           </div>
-          <h3 className="text-2xl font-bold font-heading text-white group-hover:text-blue-400 transition-colors duration-300">
+          <h3 className="text-2xl font-bold font-heading text-text-main group-hover:text-blue-400 transition-colors duration-300">
             {title}
           </h3>
         </div>
@@ -75,7 +89,7 @@ const ProjectCard = ({ title, client, category, gradient, year, photo_url, onInq
         {/* Action */}
         <button
           onClick={onInquire}
-          className="flex items-center gap-2 text-sm font-semibold text-white/80 hover:text-white transition-colors group/btn hover-target w-fit mt-4"
+          className="flex items-center gap-2 text-sm font-semibold text-text-main/80 hover:text-text-main transition-colors group/btn hover-target w-fit mt-4"
         >
           Request Case Study
           <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
@@ -116,22 +130,18 @@ export const Portfolio = ({ onOpenPlanner }: { onOpenPlanner: (category: string)
   const [projects, setProjects] = useState<Project[]>(defaultProjects);
 
   useEffect(() => {
-    const loadProjects = async () => {
-      try {
-        const res = await fetch('http://localhost:8000/api/portfolio');
-        const json = await res.json();
-        if (json.data && json.data.length > 0) {
-          setProjects(json.data);
-        }
-      } catch (err) {
-        console.error('Failed to fetch portfolio projects', err);
+    try {
+      const data = getPortfolio();
+      if (data && data.length > 0) {
+        setProjects(data);
       }
-    };
-    loadProjects();
+    } catch (err) {
+      console.error('Failed to fetch portfolio projects', err);
+    }
   }, []);
 
   return (
-    <section id="work" className="relative py-28 bg-[#050505] border-t border-white/5 z-10 px-6">
+    <section id="work" className="relative py-28 bg-brand-bg border-t border-border-color z-10 px-6 transition-colors duration-300">
       {/* Ambient background lights */}
       <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-purple-900/5 rounded-full blur-[180px] pointer-events-none" />
 
@@ -142,17 +152,17 @@ export const Portfolio = ({ onOpenPlanner }: { onOpenPlanner: (category: string)
             <span className="text-xs uppercase tracking-[0.3em] text-purple-500 font-semibold mb-3 block">
               Case Studies
             </span>
-            <h2 className="text-4xl md:text-6xl font-bold font-heading tracking-tight text-white mb-4">
+            <h2 className="text-4xl md:text-6xl font-bold font-heading tracking-tight text-text-main mb-4">
               Selected <span className="text-gradient">projects.</span>
             </h2>
-            <p className="text-gray-400 text-base font-light leading-relaxed">
+            <p className="text-text-muted text-base font-light leading-relaxed">
               Explore our record of building highly refined digital platforms, tools, and bespoke software experiences.
             </p>
           </div>
 
           <button
             onClick={() => onOpenPlanner("General Inquiry")}
-            className="group relative px-6 py-3 border border-white/20 hover:border-white text-white rounded-full text-sm font-semibold transition-all hover:scale-105 active:scale-95 hover-target flex items-center gap-2 cursor-none"
+            className="group relative px-6 py-3 border border-border-color hover:border-text-main text-text-main rounded-full text-sm font-semibold transition-all hover:scale-105 active:scale-95 hover-target flex items-center gap-2 cursor-none"
           >
             Inquire Full Archive
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

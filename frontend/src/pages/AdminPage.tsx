@@ -7,6 +7,12 @@ import {
   Phone, Building, BarChart3
 } from 'lucide-react';
 import { CustomCursor } from '../components/CustomCursor';
+import { 
+  getStats, updateStat, getTestimonials, addTestimonial, deleteTestimonial,
+  getPortfolio, addProject, deleteProject, getBlogs, addBlog, deleteBlog,
+  getTeam, addTeamMember, deleteTeamMember, getLeads, deleteLead,
+  loginAdmin, checkAdminToken
+} from '../utils/db';
 
 // Gradient choices to select from
 const testimonialGradients = [
@@ -26,6 +32,15 @@ const contentGradients = [
 ];
 
 const categories = ['Design', 'Development', 'AI', 'Business', 'Case Study'];
+
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = error => reject(error);
+    reader.readAsDataURL(file);
+  });
+};
 
 export const AdminPage = () => {
   const navigate = useNavigate();
@@ -71,22 +86,14 @@ export const AdminPage = () => {
     setTimeout(() => setNotification(null), 3000);
   };
 
-  // Check backend session
+  // Check backend session (mocked)
   useEffect(() => {
     if (token) {
-      fetch('http://localhost:8000/api/auth/me', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-      .then(res => {
-        if (!res.ok) {
-          localStorage.removeItem('admin_token');
-          setToken(null);
-        }
-      })
-      .catch(() => {
+      const isValid = checkAdminToken(token);
+      if (!isValid) {
         localStorage.removeItem('admin_token');
         setToken(null);
-      });
+      }
     }
   }, [token]);
 
@@ -96,38 +103,12 @@ export const AdminPage = () => {
 
     const fetchData = async () => {
       try {
-        const headers = { 'Authorization': `Bearer ${token}` };
-
-        // Leads
-        const leadsRes = await fetch('http://localhost:8000/api/consultations', { headers });
-        const leadsJson = await leadsRes.json();
-        setLeads(leadsJson.data || []);
-
-        // Team
-        const teamRes = await fetch('http://localhost:8000/api/team');
-        const teamJson = await teamRes.json();
-        setTeam(teamJson.data || []);
-
-        // Portfolio
-        const portfolioRes = await fetch('http://localhost:8000/api/portfolio');
-        const portfolioJson = await portfolioRes.json();
-        setPortfolio(portfolioJson.data || []);
-
-        // Blogs
-        const blogsRes = await fetch('http://localhost:8000/api/blogs');
-        const blogsJson = await blogsRes.json();
-        setBlogs(blogsJson.data || []);
-
-        // Testimonials
-        const testimonialsRes = await fetch('http://localhost:8000/api/testimonials');
-        const testimonialsJson = await testimonialsRes.json();
-        setTestimonials(testimonialsJson.data || []);
-
-        // Stats
-        const statsRes = await fetch('http://localhost:8000/api/stats');
-        const statsJson = await statsRes.json();
-        setStats(statsJson.data || []);
-
+        setLeads(getLeads());
+        setTeam(getTeam());
+        setPortfolio(getPortfolio());
+        setBlogs(getBlogs());
+        setTestimonials(getTestimonials());
+        setStats(getStats());
       } catch (err) {
         console.error('Error loading admin panel data:', err);
       }
@@ -142,23 +123,11 @@ export const AdminPage = () => {
     setLoginError('');
 
     try {
-      const res = await fetch('http://localhost:8000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-
-      if (!res.ok) {
-        const errJson = await res.json();
-        throw new Error(errJson.detail || 'Incorrect credentials');
-      }
-
-      const data = await res.json();
-      localStorage.setItem('admin_token', data.access_token);
-      setToken(data.access_token);
+      const access_token = loginAdmin(username, password);
+      setToken(access_token);
       triggerNotification('Successfully logged in as Super Admin');
     } catch (err: any) {
-      setLoginError(err.message || 'Failed to connect to backend.');
+      setLoginError(err.message || 'Incorrect credentials');
     } finally {
       setLoading(false);
     }
@@ -180,16 +149,10 @@ export const AdminPage = () => {
       return;
     }
     setLoading(true);
-    const fd = new FormData();
-    fd.append('photo', teamFile);
 
     try {
-      const res = await fetch('http://localhost:8000/api/team', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: fd
-      });
-      if (!res.ok) throw new Error('Failed to add team member');
+      const base64Photo = await fileToBase64(teamFile);
+      addTeamMember("", "", "", "", base64Photo);
       triggerNotification('Team member added successfully!');
       setTeamFile(null);
       setTeamFilePreview(null);
@@ -204,11 +167,7 @@ export const AdminPage = () => {
   const handleDeleteTeam = async (id: string) => {
     if (!confirm('Are you sure you want to remove this team member?')) return;
     try {
-      const res = await fetch(`http://localhost:8000/api/team/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (!res.ok) throw new Error('Failed to delete member');
+      deleteTeamMember(id);
       triggerNotification('Team member removed');
       setRefreshTrigger(p => p + 1);
     } catch (err: any) {
@@ -225,20 +184,8 @@ export const AdminPage = () => {
     }
     setLoading(true);
     try {
-      const fd = new FormData();
-      fd.append('quote', testimonialForm.quote);
-      fd.append('author', testimonialForm.author);
-      fd.append('role', testimonialForm.role);
-      fd.append('photo', testimonialFile);
-
-      const res = await fetch('http://localhost:8000/api/testimonials', {
-        method: 'POST',
-        headers: { 
-          'Authorization': `Bearer ${token}`
-        },
-        body: fd
-      });
-      if (!res.ok) throw new Error('Failed to add testimonial');
+      const base64Photo = await fileToBase64(testimonialFile);
+      addTestimonial(testimonialForm.quote, testimonialForm.author, testimonialForm.role, base64Photo);
       triggerNotification('Testimonial added successfully!');
       setTestimonialForm({ quote: '', author: '', role: '', avatar: '', gradient: testimonialGradients[0].class });
       setTestimonialFile(null);
@@ -254,11 +201,7 @@ export const AdminPage = () => {
   const handleDeleteTestimonial = async (id: string) => {
     if (!confirm('Are you sure you want to delete this testimonial?')) return;
     try {
-      const res = await fetch(`http://localhost:8000/api/testimonials/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (!res.ok) throw new Error('Failed to delete');
+      deleteTestimonial(id);
       triggerNotification('Testimonial deleted');
       setRefreshTrigger(p => p + 1);
     } catch (err: any) {
@@ -275,21 +218,8 @@ export const AdminPage = () => {
     }
     setLoading(true);
     try {
-      const fd = new FormData();
-      fd.append('title', projectForm.title);
-      fd.append('client', projectForm.client);
-      fd.append('category', projectForm.category);
-      fd.append('year', projectForm.year);
-      fd.append('photo', projectFile);
-
-      const res = await fetch('http://localhost:8000/api/portfolio', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: fd
-      });
-      if (!res.ok) throw new Error('Failed to add project');
+      const base64Photo = await fileToBase64(projectFile);
+      addProject(projectForm.title, projectForm.client, projectForm.category, projectForm.year, base64Photo);
       triggerNotification('Portfolio project added!');
       setProjectForm({ title: '', client: '', category: 'UI/UX Design', gradient: contentGradients[0].class, year: new Date().getFullYear().toString() });
       setProjectFile(null);
@@ -305,11 +235,7 @@ export const AdminPage = () => {
   const handleDeleteProject = async (id: string) => {
     if (!confirm('Are you sure you want to delete this project?')) return;
     try {
-      const res = await fetch(`http://localhost:8000/api/portfolio/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (!res.ok) throw new Error('Failed to delete project');
+      deleteProject(id);
       triggerNotification('Project deleted');
       setRefreshTrigger(p => p + 1);
     } catch (err: any) {
@@ -327,22 +253,8 @@ export const AdminPage = () => {
     setLoading(true);
     
     try {
-      const fd = new FormData();
-      fd.append('title', blogForm.title);
-      fd.append('category', blogForm.category);
-      fd.append('readTime', blogForm.readTime);
-      fd.append('excerpt', blogForm.excerpt);
-      fd.append('featured', blogForm.featured ? 'true' : 'false');
-      fd.append('photo', blogFile);
-
-      const res = await fetch('http://localhost:8000/api/blogs', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: fd
-      });
-      if (!res.ok) throw new Error('Failed to add blog post');
+      const base64Photo = await fileToBase64(blogFile);
+      addBlog(blogForm.title, blogForm.category, blogForm.readTime, blogForm.excerpt, blogForm.featured, base64Photo);
       triggerNotification('Blog post created!');
       setBlogForm({ title: '', slug: '', category: 'AI', tag: 'AI', readTime: '5 min read', date: '', excerpt: '', gradient: contentGradients[0].class, featured: false });
       setBlogFile(null);
@@ -358,11 +270,7 @@ export const AdminPage = () => {
   const handleDeleteBlog = async (id: string) => {
     if (!confirm('Are you sure you want to delete this blog post?')) return;
     try {
-      const res = await fetch(`http://localhost:8000/api/blogs/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (!res.ok) throw new Error('Failed to delete blog post');
+      deleteBlog(id);
       triggerNotification('Blog post deleted');
       setRefreshTrigger(p => p + 1);
     } catch (err: any) {
@@ -374,11 +282,7 @@ export const AdminPage = () => {
   const handleDeleteLead = async (id: string) => {
     if (!confirm('Are you sure you want to delete this consultation request?')) return;
     try {
-      const res = await fetch(`http://localhost:8000/api/consultations/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (!res.ok) throw new Error('Failed to delete');
+      deleteLead(id);
       triggerNotification('Consultation inquiry deleted');
       setRefreshTrigger(p => p + 1);
     } catch (err: any) {
@@ -396,19 +300,7 @@ export const AdminPage = () => {
     if (!statToSave) return;
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/stats/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          label: statToSave.label,
-          value: statToSave.value,
-          suffix: statToSave.suffix
-        })
-      });
-      if (!res.ok) throw new Error('Failed to update stat');
+      updateStat(statToSave.id, statToSave.label, statToSave.value, statToSave.suffix);
       triggerNotification('Stat updated successfully!');
       setRefreshTrigger(p => p + 1);
     } catch (err: any) {
@@ -1289,7 +1181,7 @@ export const AdminPage = () => {
                     {stats.map((stat) => (
                       <div key={stat.id} className="glass-card rounded-2xl border border-white/5 p-6 space-y-4 hover:border-white/10 transition-all duration-300">
                         <div className="flex flex-wrap items-center justify-between border-b border-white/5 pb-3 gap-2">
-                          <h3 className="text-lg font-bold font-heading text-white">Counter {stat.order_index + 1}</h3>
+                          <h3 className="text-lg font-bold font-heading text-white">{stat.label || `Stat ${stat.order_index + 1}`}</h3>
                           <span className="text-[11px] px-2.5 py-1 rounded-full border border-blue-500/20 bg-blue-500/5 text-blue-300 font-semibold uppercase tracking-wider">
                             Active Preview: {stat.value}{stat.suffix}
                           </span>
@@ -1297,35 +1189,35 @@ export const AdminPage = () => {
 
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className="text-xs text-gray-400 font-semibold block mb-1">Value</label>
+                            <label className="text-xs text-gray-300 font-semibold block mb-1">Value</label>
                             <input
                               type="text"
                               value={stat.value}
                               onChange={e => handleStatChange(stat.id, 'value', e.target.value)}
                               placeholder="e.g. 150"
-                              className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors cursor-none hover-target"
+                              className="w-full bg-white/10 border border-white/25 rounded-xl px-3.5 py-2.5 text-gray-100 placeholder-gray-500 text-sm focus:outline-none focus:border-blue-400 focus:bg-white/15 transition-all cursor-none hover-target"
                             />
                           </div>
                           <div>
-                            <label className="text-xs text-gray-400 font-semibold block mb-1">Suffix</label>
+                            <label className="text-xs text-gray-300 font-semibold block mb-1">Suffix</label>
                             <input
                               type="text"
                               value={stat.suffix}
                               onChange={e => handleStatChange(stat.id, 'suffix', e.target.value)}
                               placeholder="e.g. +"
-                              className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors cursor-none hover-target"
+                              className="w-full bg-white/10 border border-white/25 rounded-xl px-3.5 py-2.5 text-gray-100 placeholder-gray-500 text-sm focus:outline-none focus:border-blue-400 focus:bg-white/15 transition-all cursor-none hover-target"
                             />
                           </div>
                         </div>
 
                         <div>
-                          <label className="text-xs text-gray-400 font-semibold block mb-1">Label</label>
+                          <label className="text-xs text-gray-300 font-semibold block mb-1">Label</label>
                           <input
                              type="text"
                              value={stat.label}
                              onChange={e => handleStatChange(stat.id, 'label', e.target.value)}
                              placeholder="e.g. Projects Delivered"
-                             className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors cursor-none hover-target"
+                             className="w-full bg-white/10 border border-white/25 rounded-xl px-3.5 py-2.5 text-gray-100 placeholder-gray-500 text-sm focus:outline-none focus:border-blue-400 focus:bg-white/15 transition-all cursor-none hover-target"
                           />
                         </div>
 
@@ -1334,7 +1226,7 @@ export const AdminPage = () => {
                           disabled={loading}
                           className="w-full py-2.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl hover:scale-[1.01] active:scale-95 transition-all disabled:opacity-50 disabled:pointer-events-none cursor-none hover-target shadow-lg shadow-blue-500/10 text-sm"
                         >
-                          Save Counter {stat.order_index + 1}
+                          Save Changes
                         </button>
                       </div>
                     ))}

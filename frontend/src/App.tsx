@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Lenis from '@studio-freight/lenis';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion';
 
 import { Loader } from './components/Loader';
 import { CustomCursor } from './components/CustomCursor';
@@ -19,6 +19,7 @@ import { WorkPage } from './pages/WorkPage';
 import { BlogPage } from './pages/BlogPage';
 import { TeamPage } from './pages/TeamPage';
 import { AdminPage } from './pages/AdminPage';
+
 
 // Home page — full single-page layout
 let hasLoadedOnce = false;
@@ -71,7 +72,7 @@ function HomePage() {
   };
 
   return (
-    <div className="bg-[#050505] min-h-screen text-white cursor-none">
+    <div className="bg-brand-bg min-h-screen text-text-main cursor-none transition-colors duration-300">
       <CustomCursor />
       <ProjectPlannerModal
         isOpen={plannerOpen}
@@ -102,14 +103,27 @@ function HomePage() {
 }
 
 function App() {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
+
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/work" element={<WorkPage />} />
-      <Route path="/blog" element={<BlogPage />} />
-      <Route path="/team" element={<TeamPage />} />
-      <Route path="/admin" element={<AdminPage />} />
-    </Routes>
+    <>
+      <motion.div 
+        className="fixed top-0 left-0 right-0 h-[4px] bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 origin-[0%] z-[9999]" 
+        style={{ scaleX }}
+      />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/work" element={<WorkPage />} />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/team" element={<TeamPage />} />
+        <Route path="/admin" element={<AdminPage />} />
+      </Routes>
+    </>
   );
 }
 

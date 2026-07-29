@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Check, ArrowRight, ArrowLeft, Loader2, Sparkles } from 'lucide-react';
-import axios from 'axios';
+import { addLead } from '../utils/db';
 
 interface PlannerProps {
   isOpen: boolean;
@@ -12,7 +12,6 @@ interface PlannerProps {
 export const ProjectPlannerModal = ({ isOpen, onClose, initialCategory = '' }: PlannerProps) => {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
   
   const [formData, setFormData] = useState({
     category: initialCategory || 'Web Development',
@@ -61,14 +60,11 @@ export const ProjectPlannerModal = ({ isOpen, onClose, initialCategory = '' }: P
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      // Post to the backend consultations endpoint
-      await axios.post('http://localhost:8000/api/consultations', formData);
-      setSuccess(true);
+      addLead(formData);
       setStep(5); // Show success screen
     } catch (err) {
       console.error('Submission failed:', err);
       // Fallback local success even if backend is offline to prevent broken UI
-      setSuccess(true);
       setStep(5);
     } finally {
       setIsSubmitting(false);
@@ -87,7 +83,6 @@ export const ProjectPlannerModal = ({ isOpen, onClose, initialCategory = '' }: P
       whatsapp: '',
       company: ''
     });
-    setSuccess(false);
   };
 
   const handleClose = () => {

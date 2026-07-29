@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useScroll, useTransform } from 'framer-motion';
 
 const pillars = [
   {
@@ -48,13 +48,29 @@ export const About = () => {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-80px' });
 
-  return (
-    <section id="about" ref={ref} className="relative py-28 overflow-hidden">
-      {/* Background grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:80px_80px] pointer-events-none" />
+  // Scroll Parallax for background elements
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"]
+  });
+  const blobY = useTransform(scrollYProgress, [0, 1], [-100, 100]);
 
-      {/* Ambient blob */}
-      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-700/10 rounded-full blur-[180px] pointer-events-none" />
+  return (
+    <section id="about" ref={ref} className="relative py-28 overflow-hidden bg-brand-bg transition-colors duration-300">
+      {/* Background grid using dynamic theme RGB value */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: `linear-gradient(rgba(var(--cursor-color), 0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(var(--cursor-color), 0.015) 1px, transparent 1px)`,
+          backgroundSize: '80px 80px'
+        }}
+      />
+
+      {/* Ambient blob with scroll parallax */}
+      <motion.div 
+        style={{ y: blobY }}
+        className="absolute right-0 top-1/4 w-[600px] h-[600px] bg-purple-700/10 rounded-full blur-[180px] pointer-events-none" 
+      />
 
       <div className="max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-20 items-center">
         {/* Left: Text content */}
@@ -72,7 +88,7 @@ export const About = () => {
 
           <motion.h2
             variants={itemVariants}
-            className="text-4xl md:text-5xl font-bold font-heading leading-[1.1] tracking-tight text-white mb-6"
+            className="text-4xl md:text-5xl font-bold font-heading leading-[1.1] tracking-tight text-text-main mb-6"
           >
             A Consultancy Built for{' '}
             <span className="text-gradient">Ambitious Brands</span>
@@ -80,7 +96,7 @@ export const About = () => {
 
           <motion.p
             variants={itemVariants}
-            className="text-gray-400 text-lg leading-relaxed mb-6"
+            className="text-text-muted text-lg leading-relaxed mb-6"
           >
             PixelForge is a full-service digital consultancy specialising in crafting
             transformative digital products. We partner with startups, scale-ups, and
@@ -90,7 +106,7 @@ export const About = () => {
 
           <motion.p
             variants={itemVariants}
-            className="text-gray-500 text-base leading-relaxed mb-10"
+            className="text-text-muted/80 text-base leading-relaxed mb-10"
           >
             Founded by a team of product thinkers and engineers, we operate at the
             intersection of strategy, design, and technology. We don't just build websites
@@ -100,7 +116,7 @@ export const About = () => {
           <motion.a
             variants={itemVariants}
             href="#contact"
-            className="inline-flex items-center gap-3 text-sm font-semibold text-white border border-white/15 px-6 py-3 rounded-full hover:border-blue-500/50 hover:text-blue-400 transition-all duration-300 hover-target cursor-none"
+            className="inline-flex items-center gap-3 text-sm font-semibold text-text-main border border-border-color px-6 py-3 rounded-full hover:border-blue-500/50 hover:text-blue-400 transition-all duration-300 hover-target cursor-none"
           >
             Meet the Team
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -120,15 +136,15 @@ export const About = () => {
             <motion.div
               key={i}
               variants={itemVariants}
-              className="group relative flex items-start gap-5 p-6 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-blue-500/20 transition-all duration-500"
+              className="group relative flex items-start gap-5 p-6 rounded-2xl border border-border-color bg-card-bg hover:bg-card-hover-bg hover:border-blue-500/20 transition-all duration-500"
             >
               {/* Icon */}
               <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-blue-600/10 border border-blue-500/15 flex items-center justify-center text-blue-400 group-hover:bg-blue-600/20 transition-colors duration-300">
                 {p.icon}
               </div>
               <div>
-                <h3 className="text-white font-semibold text-base mb-1.5">{p.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{p.desc}</p>
+                <h3 className="text-text-main font-semibold text-base mb-1.5">{p.title}</h3>
+                <p className="text-text-muted text-sm leading-relaxed">{p.desc}</p>
               </div>
               {/* Bottom glow line on hover */}
               <div className="absolute bottom-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
