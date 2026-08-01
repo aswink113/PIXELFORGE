@@ -1,0 +1,4 @@
+Please copy your Maggle font files here.
+We support files named:
+- Maggle-Bold.woff2, Maggle-Bold.woff, Maggle-Bold.ttf, or Maggle-Bold.otf (for the bold headings)
+- Maggle-Regular.woff2, Maggle-Regular.woff, Maggle-Regular.ttf, or Maggle-Regular.otf (for regular headers)

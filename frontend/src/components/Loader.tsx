@@ -93,32 +93,32 @@ export const Loader = ({ onLoadingComplete }: { onLoadingComplete: () => void })
                 </motion.span>
               ))}
             </motion.div>
-
-            {/* Premium Progress Bar */}
-            <div className="absolute bottom-10 left-0 w-full h-[1px] bg-zinc-900/10">
-              <motion.div
-                className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500"
-                initial={{ width: "0%" }}
-                animate={{ width: `${progress > 100 ? 100 : progress}%` }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-              />
-            </div>
-            
-            {/* Percentage Text (Huge Outline in background) */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[20vw] font-bold opacity-[0.04] pointer-events-none text-transparent"
-                 style={{ WebkitTextStroke: '2px #09090B' }}>
-              {progress > 100 ? 100 : progress}
-            </div>
-            
-            {/* Elegant Small Percentage */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="absolute bottom-16 right-10 text-2xl font-light tracking-widest font-mono text-zinc-400"
-            >
-              {progress > 100 ? 100 : progress}%
-            </motion.div>
           </div>
+
+          {/* Premium Progress Bar */}
+          <div className="absolute bottom-10 left-0 w-full h-[1px] bg-zinc-900/10">
+            <motion.div
+              className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500"
+              initial={{ width: "0%" }}
+              animate={{ width: `${progress > 100 ? 100 : progress}%` }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+            />
+          </div>
+          
+          {/* Percentage Text (Huge Outline in background - increased transparency to 0.01) */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[20vw] font-bold opacity-[0.05] pointer-events-none text-transparent"
+               style={{ WebkitTextStroke: '2px #09090B' }}>
+            {progress > 100 ? 100 : progress}
+          </div>
+          
+          {/* Elegant Small Percentage */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="absolute bottom-16 right-10 text-2xl font-light tracking-widest font-mono text-zinc-400"
+          >
+            {progress > 100 ? 100 : progress}%
+          </motion.div>
         </motion.div>
       )}
     </AnimatePresence>

@@ -4,14 +4,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, Users, Briefcase, FileText, MessageSquare, 
   LogOut, Trash2, Lock, User, Mail, 
-  Phone, Building, BarChart3
+  Phone, Building, BarChart3, Globe, Layers, Upload, X
 } from 'lucide-react';
 import { CustomCursor } from '../components/CustomCursor';
 import { 
   getStats, updateStat, getTestimonials, addTestimonial, deleteTestimonial,
   getPortfolio, addProject, deleteProject, getBlogs, addBlog, deleteBlog,
   getTeam, addTeamMember, deleteTeamMember, getLeads, deleteLead,
-  loginAdmin, checkAdminToken
+  loginAdmin, checkAdminToken,
+  getOrbitIcons, updateOrbitIcon, addOrbitIcon, deleteOrbitIcon,
+  getExpertiseCards, updateExpertiseCard, addExpertiseCard, deleteExpertiseCard,
+  getClientLogos, addClientLogo, updateClientLogo, deleteClientLogo
 } from '../utils/db';
 
 // Gradient choices to select from
@@ -33,10 +36,46 @@ const contentGradients = [
 
 const categories = ['Design', 'Development', 'AI', 'Business', 'Case Study'];
 
-const fileToBase64 = (file: File): Promise<string> => {
+const fileToBase64 = (file: File, maxWidth = 600, maxHeight = 400): Promise<string> => {
   return new Promise((resolve, reject) => {
+    if (file.type === 'image/svg+xml') {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+      reader.readAsDataURL(file);
+      return;
+    }
+
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+        if (height > maxHeight) {
+          width = Math.round((width * maxHeight) / height);
+          height = maxHeight;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(e.target?.result as string);
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/webp', 0.85));
+      };
+      img.onerror = () => reject(new Error('Failed to load image'));
+      img.src = e.target?.result as string;
+    };
     reader.onerror = error => reject(error);
     reader.readAsDataURL(file);
   });
@@ -45,7 +84,7 @@ const fileToBase64 = (file: File): Promise<string> => {
 export const AdminPage = () => {
   const navigate = useNavigate();
   const [token, setToken] = useState<string | null>(localStorage.getItem('admin_token'));
-  const [activeTab, setActiveTab] = useState<'overview' | 'leads' | 'team' | 'portfolio' | 'blogs' | 'testimonials' | 'stats'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'leads' | 'team' | 'portfolio' | 'blogs' | 'testimonials' | 'stats' | 'orbit' | 'expertise' | 'clients'>('overview');
   
   // Auth state
   const [username, setUsername] = useState('admin');
@@ -60,6 +99,9 @@ export const AdminPage = () => {
   const [blogs, setBlogs] = useState<any[]>([]);
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [stats, setStats] = useState<any[]>([]);
+  const [orbitIcons, setOrbitIcons] = useState<any[]>([]);
+  const [expertiseCards, setExpertiseCards] = useState<any[]>([]);
+  const [clientLogos, setClientLogos] = useState<any[]>([]);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Forms state
@@ -77,6 +119,11 @@ export const AdminPage = () => {
   const [testimonialForm, setTestimonialForm] = useState({ quote: '', author: '', role: '', avatar: '', gradient: testimonialGradients[0].class });
   const [testimonialFile, setTestimonialFile] = useState<File | null>(null);
   const [testimonialFilePreview, setTestimonialFilePreview] = useState<string | null>(null);
+
+  // Orbit Icon and Expertise Form States
+  const [orbitForm, setOrbitForm] = useState({ emoji: '🚀', label: 'Launch', color: '#5E5BFF', iconUrl: '' });
+  const [expertiseForm, setExpertiseForm] = useState({ text: '⚡ Dynamic Card' });
+  const [clientForm, setClientForm] = useState({ name: '', logoUrl: '' });
 
   // Notifications
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -109,6 +156,9 @@ export const AdminPage = () => {
         setBlogs(getBlogs());
         setTestimonials(getTestimonials());
         setStats(getStats());
+        setOrbitIcons(getOrbitIcons());
+        setExpertiseCards(getExpertiseCards());
+        setClientLogos(getClientLogos());
       } catch (err) {
         console.error('Error loading admin panel data:', err);
       }
@@ -310,6 +360,189 @@ export const AdminPage = () => {
     }
   };
 
+  // Orbit Icons CRUD
+  const handleOrbitIconFileUpload = (file: File, target: 'form' | string) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = reader.result as string;
+      if (target === 'form') {
+        setOrbitForm(prev => ({ ...prev, iconUrl: base64 }));
+      } else {
+        setOrbitIcons(prev => prev.map(ico => ico.id === target ? { ...ico, iconUrl: base64 } : ico));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleAddOrbitIcon = (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      addOrbitIcon(orbitForm.emoji, orbitForm.label, orbitForm.color, orbitForm.iconUrl || undefined);
+      triggerNotification('Orbit icon added successfully!');
+      setOrbitForm({ emoji: '🚀', label: '', color: '#5E5BFF', iconUrl: '' });
+      setRefreshTrigger(p => p + 1);
+    } catch (err: any) {
+      triggerNotification(err.message, 'error');
+    }
+  };
+
+  const handleOrbitIconChange = (id: string, field: 'emoji' | 'label' | 'color', newVal: string) => {
+    setOrbitIcons(prev => prev.map(ico => ico.id === id ? { ...ico, [field]: newVal } : ico));
+  };
+
+  const handleSaveOrbitIcon = async (id: string) => {
+    const icoToSave = orbitIcons.find(ico => ico.id === id);
+    if (!icoToSave) return;
+    setLoading(true);
+    try {
+      updateOrbitIcon(icoToSave.id, icoToSave.emoji, icoToSave.label, icoToSave.color, icoToSave.iconUrl || undefined);
+      triggerNotification('Orbit capsule updated successfully!');
+      setRefreshTrigger(p => p + 1);
+    } catch (err: any) {
+      triggerNotification(err.message || 'Error updating capsule', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteOrbitIcon = (id: string) => {
+    if (!confirm('Are you sure you want to delete this orbit icon?')) return;
+    try {
+      deleteOrbitIcon(id);
+      triggerNotification('Orbit icon deleted');
+      setRefreshTrigger(p => p + 1);
+    } catch (err: any) {
+      triggerNotification(err.message, 'error');
+    }
+  };
+
+  // Expertise Cards CRUD
+  const handleAddExpertiseCard = (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      addExpertiseCard(expertiseForm.text);
+      triggerNotification('Expertise card added successfully!');
+      setExpertiseForm({ text: '' });
+      setRefreshTrigger(p => p + 1);
+    } catch (err: any) {
+      triggerNotification(err.message, 'error');
+    }
+  };
+
+  const handleExpertiseCardChange = (id: string, text: string) => {
+    setExpertiseCards(prev => prev.map(c => c.id === id ? { ...c, text } : c));
+  };
+
+  const handleSaveExpertiseCard = async (id: string) => {
+    const cardToSave = expertiseCards.find(c => c.id === id);
+    if (!cardToSave) return;
+    setLoading(true);
+    try {
+      updateExpertiseCard(cardToSave.id, cardToSave.text);
+      triggerNotification('Expertise card updated successfully!');
+      setRefreshTrigger(p => p + 1);
+    } catch (err: any) {
+      triggerNotification(err.message || 'Error updating card', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleDeleteExpertiseCard = (id: string) => {
+    if (!confirm('Are you sure you want to delete this expertise card?')) return;
+    try {
+      deleteExpertiseCard(id);
+      triggerNotification('Expertise card deleted');
+      setRefreshTrigger(p => p + 1);
+    } catch (err: any) {
+      triggerNotification(err.message, 'error');
+    }
+  };
+
+  // Clients CRUD
+  const handleClientLogoFileUpload = async (file: File, target: 'form' | string) => {
+    try {
+      const base64 = await fileToBase64(file, 200, 100);
+      if (target === 'form') {
+        setClientForm(prev => ({ ...prev, logoUrl: base64 }));
+      } else {
+        setClientLogos(prev => {
+          const updated = prev.map(l => l.id === target ? { ...l, logoUrl: base64 } : l);
+          const logoToSave = updated.find(l => l.id === target);
+          if (logoToSave) {
+            try {
+              updateClientLogo(logoToSave.id, logoToSave.name, logoToSave.logoUrl);
+              console.log("Admin - Auto-saved Client Logo file update:", logoToSave.id);
+            } catch (err) {
+              console.error(err);
+            }
+          }
+          return updated;
+        });
+      }
+    } catch (err) {
+      console.error("Error processing file upload:", err);
+    }
+  };
+
+  const handleAddClientLogo = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!clientForm.logoUrl) {
+      triggerNotification('Please upload a client logo image first.', 'error');
+      return;
+    }
+    try {
+      addClientLogo(clientForm.name, clientForm.logoUrl);
+      triggerNotification('Client logo added successfully!');
+      setClientForm({ name: '', logoUrl: '' });
+      setRefreshTrigger(p => p + 1);
+    } catch (err: any) {
+      triggerNotification(err.message, 'error');
+    }
+  };
+
+  const handleClientLogoChange = (id: string, field: 'name' | 'logoUrl', newVal: string) => {
+    setClientLogos(prev => {
+      const updated = prev.map(l => l.id === id ? { ...l, [field]: newVal } : l);
+      const logoToSave = updated.find(l => l.id === id);
+      if (logoToSave) {
+        try {
+          updateClientLogo(logoToSave.id, logoToSave.name, logoToSave.logoUrl);
+          console.log("Admin - Auto-saved Client Logo text update:", logoToSave.id);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+      return updated;
+    });
+  };
+
+  const handleSaveClientLogo = async (id: string) => {
+    const logoToSave = clientLogos.find(l => l.id === id);
+    if (!logoToSave) return;
+    setLoading(true);
+    try {
+      console.log("Admin - Saving Client Logo:", logoToSave.id, logoToSave.name, logoToSave.logoUrl.slice(0, 100) + "...");
+      updateClientLogo(logoToSave.id, logoToSave.name, logoToSave.logoUrl);
+      triggerNotification('Client logo updated successfully!');
+      setRefreshTrigger(p => p + 1);
+    } catch (err: any) {
+      triggerNotification(err.message || 'Error updating client logo', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteClientLogo = (id: string) => {
+    if (!confirm('Are you sure you want to delete this client logo?')) return;
+    try {
+      deleteClientLogo(id);
+      triggerNotification('Client logo deleted');
+      setRefreshTrigger(p => p + 1);
+    } catch (err: any) {
+      triggerNotification(err.message, 'error');
+    }
+  };
+
   return (
     <div className="bg-[#050505] min-h-screen text-white cursor-none flex flex-col font-sans">
       <CustomCursor />
@@ -421,7 +654,7 @@ export const AdminPage = () => {
             <div>
               <div className="mb-8 flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-bold font-heading text-white">PixelForge</h2>
+                  <h2 className="text-lg font-bold font-heading text-white">Lumiora</h2>
                   <span className="text-[10px] uppercase text-emerald-400 tracking-wider font-semibold">Super Admin</span>
                 </div>
                 <button 
@@ -441,6 +674,9 @@ export const AdminPage = () => {
                   { id: 'blogs', name: 'Blogs', icon: FileText, badge: blogs.length },
                   { id: 'testimonials', name: 'Testimonials', icon: MessageSquare, badge: testimonials.length },
                   { id: 'stats', name: 'Agency Stats', icon: BarChart3, badge: undefined },
+                  { id: 'orbit', name: 'Orbit Icons', icon: Globe, badge: orbitIcons.length },
+                  { id: 'expertise', name: 'Expertise Cards', icon: Layers, badge: expertiseCards.length },
+                  { id: 'clients', name: 'Our Clients', icon: Building, badge: clientLogos.length },
                 ].map(item => {
                   const Icon = item.icon;
                   const isAct = activeTab === item.id;
@@ -490,7 +726,7 @@ export const AdminPage = () => {
               <div className="space-y-8">
                 <div>
                   <h1 className="text-3xl font-bold font-heading text-white">System Overview</h1>
-                  <p className="text-gray-500 text-sm mt-1">Manage and monitor all aspects of the PixelForge dynamic core.</p>
+                  <p className="text-gray-500 text-sm mt-1">Manage and monitor all aspects of the Lumiora dynamic core.</p>
                 </div>
 
                 {/* Stats Cards */}
@@ -1053,7 +1289,7 @@ export const AdminPage = () => {
                           required
                           value={testimonialForm.quote}
                           onChange={e => setTestimonialForm({ ...testimonialForm, quote: e.target.value })}
-                          placeholder="What did they write about PixelForge?..."
+                          placeholder="What did they write about Lumiora?..."
                           rows={4}
                           className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors resize-none"
                         />
@@ -1232,6 +1468,394 @@ export const AdminPage = () => {
                     ))}
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* 8. ORBIT ICONS TAB */}
+            {activeTab === 'orbit' && (
+              <div className="space-y-8">
+                <div>
+                  <h1 className="text-3xl font-bold font-heading text-white">Orbit Icons</h1>
+                  <p className="text-gray-500 text-sm mt-1">Manage the orbiting emojis, labels, and capsule colors shown on the hero section centerpiece.</p>
+                </div>
+
+                <div className="grid lg:grid-cols-3 gap-8">
+                  {/* Add Orbit Icon Form */}
+                  <div className="glass-card rounded-2xl border border-white/5 p-6 h-fit space-y-6">
+                    <h3 className="text-lg font-bold font-heading text-white border-b border-white/5 pb-3">Add Orbit Capsule</h3>
+                    
+                    <form onSubmit={handleAddOrbitIcon} className="space-y-4">
+                      <div>
+                        <label className="text-xs text-gray-400 font-semibold block mb-1">Icon (Upload or Emoji)</label>
+                        {orbitForm.iconUrl ? (
+                          <div className="flex items-center gap-3">
+                            <img src={orbitForm.iconUrl} alt="Icon" className="w-12 h-12 rounded-xl object-contain bg-white/5 border border-white/10 p-1" />
+                            <button
+                              type="button"
+                              onClick={() => setOrbitForm(prev => ({ ...prev, iconUrl: '' }))}
+                              className="text-gray-400 hover:text-red-400 transition-colors cursor-none hover-target"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <label className="flex items-center gap-2 px-3.5 py-2.5 bg-white/5 border border-dashed border-white/20 rounded-xl cursor-pointer hover:border-blue-500/50 transition-colors">
+                              <Upload className="w-4 h-4 text-gray-400" />
+                              <span className="text-sm text-gray-400">Upload icon image</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={e => {
+                                  const file = e.target.files?.[0];
+                                  if (file) handleOrbitIconFileUpload(file, 'form');
+                                }}
+                              />
+                            </label>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] text-gray-500">or emoji:</span>
+                              <input
+                                value={orbitForm.emoji}
+                                onChange={e => setOrbitForm({ ...orbitForm, emoji: e.target.value })}
+                                placeholder="🤖"
+                                className="flex-grow bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="text-xs text-gray-400 font-semibold block mb-1">Label</label>
+                        <input
+                          required
+                          value={orbitForm.label}
+                          onChange={e => setOrbitForm({ ...orbitForm, label: e.target.value })}
+                          placeholder="e.g. AI"
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-xs text-gray-400 font-semibold block mb-1">Neon Glow Color (Hex)</label>
+                        <div className="flex gap-2">
+                          <input
+                            type="color"
+                            value={orbitForm.color}
+                            onChange={e => setOrbitForm({ ...orbitForm, color: e.target.value })}
+                            className="w-10 h-10 bg-transparent border-0 cursor-none hover-target rounded-lg"
+                          />
+                          <input
+                            required
+                            value={orbitForm.color}
+                            onChange={e => setOrbitForm({ ...orbitForm, color: e.target.value })}
+                            placeholder="e.g. #5E5BFF"
+                            className="flex-grow bg-white/5 border border-white/10 rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                          />
+                        </div>
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl hover:scale-[1.02] active:scale-95 transition-all cursor-none hover-target"
+                      >
+                        Add Orbit Icon
+                      </button>
+                    </form>
+                  </div>
+
+                  {/* List View */}
+                  <div className="lg:col-span-2 space-y-4">
+                    {orbitIcons.length === 0 ? (
+                      <div className="glass-card rounded-2xl p-12 text-center text-gray-600 border border-white/5">
+                        No orbit icons active.
+                      </div>
+                    ) : (
+                      orbitIcons.map((ico) => (
+                        <div key={ico.id} className="glass-card rounded-2xl border border-white/5 p-5 space-y-4 hover:border-white/10 transition-all duration-300">
+                          <div className="grid grid-cols-4 gap-3">
+                            <div>
+                              <label className="text-[10px] text-gray-400 font-semibold block mb-1">Icon</label>
+                              {ico.iconUrl ? (
+                                <div className="flex items-center gap-1.5">
+                                  <img src={ico.iconUrl} alt="Icon" className="w-10 h-10 rounded-lg object-contain bg-white/5 border border-white/10 p-0.5" />
+                                  <button
+                                    type="button"
+                                    onClick={() => setOrbitIcons(prev => prev.map(i => i.id === ico.id ? { ...i, iconUrl: undefined } : i))}
+                                    className="text-gray-500 hover:text-red-400 transition-colors cursor-none hover-target"
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <div className="space-y-1.5">
+                                  <label className="flex items-center gap-1.5 px-2 py-1.5 bg-white/5 border border-dashed border-white/15 rounded-lg cursor-pointer hover:border-blue-500/50 transition-colors text-[10px] text-gray-400">
+                                    <Upload className="w-3 h-3" />
+                                    Upload
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      className="hidden"
+                                      onChange={e => {
+                                        const file = e.target.files?.[0];
+                                        if (file) handleOrbitIconFileUpload(file, ico.id);
+                                      }}
+                                    />
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={ico.emoji}
+                                    onChange={e => handleOrbitIconChange(ico.id, 'emoji', e.target.value)}
+                                    placeholder="🤖"
+                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-white text-xs focus:outline-none focus:border-blue-500 transition-colors"
+                                  />
+                                </div>
+                              )}
+                            </div>
+                            <div>
+                              <label className="text-[10px] text-gray-400 font-semibold block mb-1">Label</label>
+                              <input
+                                type="text"
+                                value={ico.label}
+                                onChange={e => handleOrbitIconChange(ico.id, 'label', e.target.value)}
+                                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                              />
+                            </div>
+                            <div className="col-span-2">
+                              <label className="text-[10px] text-gray-400 font-semibold block mb-1">Glow Color</label>
+                              <div className="flex items-center gap-1.5">
+                                <input
+                                  type="color"
+                                  value={ico.color}
+                                  onChange={e => handleOrbitIconChange(ico.id, 'color', e.target.value)}
+                                  className="w-8 h-8 bg-transparent border-0 cursor-none hover-target"
+                                />
+                                <input
+                                  type="text"
+                                  value={ico.color}
+                                  onChange={e => handleOrbitIconChange(ico.id, 'color', e.target.value)}
+                                  className="w-full bg-white/5 border border-white/10 rounded-xl px-2 py-1 text-white text-xs focus:outline-none focus:border-blue-500 transition-colors"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex gap-2 justify-end border-t border-white/5 pt-3">
+                            <button
+                              onClick={() => handleSaveOrbitIcon(ico.id)}
+                              className="px-4 py-1.5 bg-gradient-to-r from-blue-500/80 to-purple-600/80 text-white rounded-lg text-xs font-semibold hover:scale-[1.02] active:scale-95 transition-all cursor-none hover-target"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => handleDeleteOrbitIcon(ico.id)}
+                              className="px-4 py-1.5 bg-red-650/20 border border-red-500/30 text-red-300 rounded-lg text-xs font-semibold hover:bg-red-600/30 transition-all cursor-none hover-target"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 9. EXPERTISE CARDS TAB */}
+            {activeTab === 'expertise' && (
+              <div className="space-y-8">
+                <div>
+                  <h1 className="text-3xl font-bold font-heading text-white">Expertise Cards</h1>
+                  <p className="text-gray-500 text-sm mt-1">Manage the floating expertise chips/badges displayed under the main CTA buttons on the hero section.</p>
+                </div>
+
+                <div className="grid lg:grid-cols-3 gap-8">
+                  {/* Add Card Form */}
+                  <div className="glass-card rounded-2xl border border-white/5 p-6 h-fit space-y-6">
+                    <h3 className="text-lg font-bold font-heading text-white border-b border-white/5 pb-3">Add Expertise Card</h3>
+                    
+                    <form onSubmit={handleAddExpertiseCard} className="space-y-4">
+                      <div>
+                        <label className="text-xs text-gray-400 font-semibold block mb-1">Chip Text (with emoji)</label>
+                        <input
+                          required
+                          value={expertiseForm.text}
+                          onChange={e => setExpertiseForm({ ...expertiseForm, text: e.target.value })}
+                          placeholder="e.g. 🤖 AI Automation"
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                        />
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl hover:scale-[1.02] active:scale-95 transition-all cursor-none hover-target"
+                      >
+                        Add Expertise Card
+                      </button>
+                    </form>
+                  </div>
+
+                  {/* List View */}
+                  <div className="lg:col-span-2 space-y-4">
+                    {expertiseCards.length === 0 ? (
+                      <div className="glass-card rounded-2xl p-12 text-center text-gray-600 border border-white/5">
+                        No expertise cards active.
+                      </div>
+                    ) : (
+                      expertiseCards.map((card) => (
+                        <div key={card.id} className="glass-card rounded-2xl border border-white/5 p-4 flex items-center gap-3 hover:border-white/10 transition-all duration-300">
+                          <input
+                            type="text"
+                            value={card.text}
+                            onChange={e => handleExpertiseCardChange(card.id, e.target.value)}
+                            className="flex-grow bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors cursor-none hover-target"
+                          />
+                          
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleSaveExpertiseCard(card.id)}
+                              className="px-4 py-2.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl text-xs font-semibold hover:scale-[1.02] active:scale-95 transition-all cursor-none hover-target"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => handleDeleteExpertiseCard(card.id)}
+                              className="px-4 py-2.5 bg-red-650/20 border border-red-500/30 text-red-300 rounded-xl text-xs font-semibold hover:bg-red-600/30 transition-all cursor-none hover-target"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 10. CLIENT LOGOS TAB */}
+            {activeTab === 'clients' && (
+              <div className="space-y-8">
+                <div>
+                  <h1 className="text-3xl font-bold font-heading text-white">Our Clients</h1>
+                  <p className="text-gray-500 text-sm mt-1">Manage client logos rendered in the interactive holographic constellation grid network.</p>
+                </div>
+
+                <div className="grid lg:grid-cols-3 gap-8">
+                  {/* Add Client Form */}
+                  <div className="glass-card rounded-2xl border border-white/5 p-6 h-fit space-y-6">
+                    <h3 className="text-lg font-bold font-heading text-white border-b border-white/5 pb-3">Add Client</h3>
+                    
+                    <form onSubmit={handleAddClientLogo} className="space-y-4">
+                      <div>
+                        <label className="text-xs text-gray-400 font-semibold block mb-1">Client Name</label>
+                        <input
+                          value={clientForm.name}
+                          onChange={e => setClientForm({ ...clientForm, name: e.target.value })}
+                          placeholder="e.g. Nexus Labs"
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-xs text-gray-400 font-semibold block mb-1">Logo Image</label>
+                        {clientForm.logoUrl ? (
+                          <div className="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/10">
+                            <img src={clientForm.logoUrl} alt="Preview" className="h-10 object-contain max-w-[120px] bg-white/5 p-1 rounded border border-white/10" />
+                            <button
+                              type="button"
+                              onClick={() => setClientForm(prev => ({ ...prev, logoUrl: '' }))}
+                              className="text-gray-400 hover:text-red-400 transition-colors cursor-none hover-target"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <label className="flex items-center gap-2 px-3.5 py-2.5 bg-white/5 border border-dashed border-white/20 rounded-xl cursor-pointer hover:border-blue-500/50 transition-colors">
+                            <Upload className="w-4 h-4 text-gray-400" />
+                            <span className="text-sm text-gray-400">Upload SVG/PNG Logo</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={e => {
+                                const file = e.target.files?.[0];
+                                if (file) handleClientLogoFileUpload(file, 'form');
+                              }}
+                            />
+                          </label>
+                        )}
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl hover:scale-[1.02] active:scale-95 transition-all cursor-none hover-target"
+                      >
+                        Add Client Logo
+                      </button>
+                    </form>
+                  </div>
+
+                  {/* List View */}
+                  <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {clientLogos.length === 0 ? (
+                      <div className="col-span-2 glass-card rounded-2xl p-12 text-center text-gray-600 border border-white/5">
+                        No client logos added.
+                      </div>
+                    ) : (
+                      clientLogos.map((logo) => (
+                        <div key={logo.id} className="glass-card rounded-2xl border border-white/5 p-5 space-y-4 hover:border-white/10 transition-all duration-300">
+                          <div className="flex items-center gap-4">
+                            {/* Logo File Selector and Preview */}
+                            <label className="relative w-20 h-12 flex flex-col items-center justify-center bg-white/5 rounded-xl border border-white/10 p-1.5 overflow-hidden cursor-pointer hover:border-blue-500/50 group/logo transition-colors">
+                              <img src={logo.logoUrl} alt={logo.name} className="h-full object-contain opacity-80 group-hover/logo:opacity-30 transition-opacity" />
+                              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/logo:opacity-100 bg-black/40 transition-opacity">
+                                <Upload className="w-3.5 h-3.5 text-white" />
+                              </div>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={e => {
+                                  const file = e.target.files?.[0];
+                                  if (file) handleClientLogoFileUpload(file, logo.id);
+                                }}
+                              />
+                            </label>
+
+                            {/* Client Name Input */}
+                            <div className="flex-grow">
+                              <label className="text-[10px] text-gray-400 font-semibold block mb-1">Client Name</label>
+                              <input
+                                type="text"
+                                value={logo.name}
+                                onChange={e => handleClientLogoChange(logo.id, 'name', e.target.value)}
+                                className="w-full bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-white text-xs focus:outline-none focus:border-blue-500 transition-colors"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="flex gap-2 justify-end border-t border-white/5 pt-3">
+                            <button
+                              onClick={() => handleSaveClientLogo(logo.id)}
+                              className="px-3.5 py-1.5 bg-gradient-to-r from-blue-500/80 to-purple-600/80 text-white rounded-lg text-[10px] font-semibold hover:scale-[1.02] active:scale-95 transition-all cursor-none hover-target"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => handleDeleteClientLogo(logo.id)}
+                              className="px-3.5 py-1.5 bg-red-650/20 border border-red-500/30 text-red-300 rounded-lg text-[10px] font-semibold hover:bg-red-600/30 transition-all cursor-none hover-target"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
               </div>
             )}
           </main>

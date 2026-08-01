@@ -27,11 +27,12 @@ export const Navbar = ({ onOpenPlanner }: { onOpenPlanner: () => void }) => {
 
   const navLinks = [
     { name: 'Home', href: '/', isRoute: true },
-    { name: 'Work', href: '/work', isRoute: true },
     { name: 'Services', href: '#services', isRoute: false },
+    { name: 'Solutions', href: '#process', isRoute: false },
+    { name: 'Projects', href: '#projects', isRoute: false },
     { name: 'About', href: '#about', isRoute: false },
-    { name: 'Our Team', href: '/team', isRoute: true },
-    { name: 'Blog', href: '/blog', isRoute: true },
+    { name: 'Team', href: '/team', isRoute: true },
+    { name: 'Contact', href: '#contact', isRoute: false },
   ];
 
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -53,10 +54,10 @@ export const Navbar = ({ onOpenPlanner }: { onOpenPlanner: () => void }) => {
       <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled 
-            ? 'py-4 bg-brand-bg/80 backdrop-blur-xl border-b border-border-color' 
+            ? 'py-4 bg-[#FCFCFC]/70 backdrop-blur-xl border-b border-[#5E5BFF]/10 shadow-[0_4px_30px_rgba(94,91,255,0.03)]' 
             : 'py-6 bg-transparent'
         }`}
       >
@@ -70,10 +71,17 @@ export const Navbar = ({ onOpenPlanner }: { onOpenPlanner: () => void }) => {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
               }}
-              className="hover-target flex items-center gap-0.5"
+              className="hover-target flex items-center gap-3 group"
             >
-              <img src="/logo.png" alt="LUMIORA Logo" className="h-14 w-auto object-contain rounded-lg" style={{ mixBlendMode: 'multiply' }} />
-              <span className="text-2xl font-bold tracking-wider text-gradient font-heading">LUMIORA</span>
+              {/* Actual Company Logo Image */}
+              <img 
+                src="/logo.png" 
+                alt="Lumiora Logo" 
+                className="w-9 h-9 object-contain group-hover:rotate-[360deg] transition-transform duration-700" 
+              />
+              <span className="text-xl font-bold tracking-[0.25em] bg-gradient-to-r from-[#5E5BFF] to-[#A855F7] bg-clip-text text-transparent group-hover:from-[#A855F7] group-hover:to-[#5E5BFF] transition-all duration-500 font-logo uppercase">
+                LUMIORA
+              </span>
             </Link>
           </div>
 
@@ -84,33 +92,40 @@ export const Navbar = ({ onOpenPlanner }: { onOpenPlanner: () => void }) => {
                 <Link
                   key={link.name}
                   to={link.href}
-                  className="text-sm font-medium text-text-muted hover:text-text-main transition-colors hover-target relative group"
+                  onClick={(e) => {
+                    if (link.href === '/' && location.pathname === '/') {
+                      e.preventDefault();
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                  }}
+                  className="text-sm font-semibold text-stone-600 hover:text-[#5E5BFF] transition-colors hover-target relative group py-1"
                 >
                   {link.name}
-                  <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-blue-500 transition-all duration-300 group-hover:w-full" />
+                  <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#5E5BFF] transition-all duration-300 group-hover:w-full" />
                 </Link>
               ) : (
                 <a
                   key={link.name}
                   href={link.href}
                   onClick={(e) => handleAnchorClick(e, link.href)}
-                  className="text-sm font-medium text-text-muted hover:text-text-main transition-colors hover-target relative group"
+                  className="text-sm font-semibold text-stone-600 hover:text-[#5E5BFF] transition-colors hover-target relative group py-1"
                 >
                   {link.name}
-                  <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-blue-500 transition-all duration-300 group-hover:w-full" />
+                  <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#5E5BFF] transition-all duration-300 group-hover:w-full" />
                 </a>
               )
             ))}
             
             <button 
               onClick={onOpenPlanner}
-              className="px-6 py-2.5 text-white rounded-full font-semibold transition-all duration-300 hover-target ml-2 text-sm cursor-none hover:scale-105 active:scale-95"
+              className="px-6 py-2.5 text-white rounded-full font-bold transition-all duration-300 hover-target ml-2 text-sm cursor-none hover:scale-105 active:scale-95 flex items-center gap-1 group/btn"
               style={{
-                background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
-                boxShadow: '0 4px 20px rgba(99,102,241,0.28)',
+                background: 'linear-gradient(135deg, #5E5BFF 0%, #7B68FF 100%)',
+                boxShadow: '0 4px 20px rgba(94,91,255,0.22)',
               }}
             >
-              Let's Talk
+              Start Your Project
+              <span className="group-hover/btn:translate-x-1 transition-transform duration-300">→</span>
             </button>
           </div>
 
@@ -122,15 +137,15 @@ export const Navbar = ({ onOpenPlanner }: { onOpenPlanner: () => void }) => {
             >
               <motion.span 
                 animate={menuOpen ? { rotate: 45, y: 8 } : { rotate: 0, y: 0 }}
-                className="w-6 h-px bg-text-main block transition-all"
+                className="w-6 h-px bg-stone-900 block transition-all"
               />
               <motion.span 
                 animate={menuOpen ? { opacity: 0 } : { opacity: 1 }}
-                className="w-6 h-px bg-text-main block transition-all"
+                className="w-6 h-px bg-stone-900 block transition-all"
               />
               <motion.span 
                 animate={menuOpen ? { rotate: -45, y: -8 } : { rotate: 0, y: 0 }}
-                className="w-6 h-px bg-text-main block transition-all"
+                className="w-6 h-px bg-stone-900 block transition-all"
               />
             </button>
           </div>
@@ -145,7 +160,7 @@ export const Navbar = ({ onOpenPlanner }: { onOpenPlanner: () => void }) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: "-100%" }}
             transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
-            className="fixed inset-0 z-40 bg-brand-bg flex flex-col justify-center items-center"
+            className="fixed inset-0 z-40 bg-[#FCFCFC] flex flex-col justify-center items-center"
           >
             <div className="flex flex-col items-center gap-8 text-3xl font-bold tracking-tight">
               {navLinks.map((link, i) => (
@@ -154,12 +169,18 @@ export const Navbar = ({ onOpenPlanner }: { onOpenPlanner: () => void }) => {
                     key={link.name}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.1 + 0.3 }}
+                    transition={{ delay: i * 0.08 + 0.2 }}
                   >
                     <Link
                       to={link.href}
-                      onClick={() => setMenuOpen(false)}
-                      className="hover:text-blue-500 transition-colors text-3xl font-bold tracking-tight text-text-main"
+                      onClick={(e) => {
+                        setMenuOpen(false);
+                        if (link.href === '/' && location.pathname === '/') {
+                          e.preventDefault();
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                      }}
+                      className="hover:text-[#5E5BFF] transition-colors text-3xl font-bold tracking-tight text-stone-900"
                     >
                       {link.name}
                     </Link>
@@ -170,12 +191,12 @@ export const Navbar = ({ onOpenPlanner }: { onOpenPlanner: () => void }) => {
                     href={link.href}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.1 + 0.3 }}
+                    transition={{ delay: i * 0.08 + 0.2 }}
                     onClick={(e) => {
                       setMenuOpen(false);
                       handleAnchorClick(e, link.href);
                     }}
-                    className="hover:text-blue-500 transition-colors text-text-main"
+                    className="hover:text-[#5E5BFF] transition-colors text-stone-900"
                   >
                     {link.name}
                   </motion.a>
@@ -184,18 +205,18 @@ export const Navbar = ({ onOpenPlanner }: { onOpenPlanner: () => void }) => {
               <motion.button 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 }}
-                className="mt-8 px-8 py-4 rounded-full text-xl hover-target cursor-none"
+                transition={{ delay: 0.6 }}
+                className="mt-8 px-8 py-4 rounded-full text-xl hover-target cursor-none text-white font-bold"
                 style={{
-                  backgroundColor: 'var(--text-color)',
-                  color: 'var(--bg-color)'
+                  background: 'linear-gradient(135deg, #5E5BFF 0%, #7B68FF 100%)',
+                  boxShadow: '0 4px 20px rgba(94,91,255,0.22)',
                 }}
                 onClick={() => {
                   setMenuOpen(false);
                   onOpenPlanner();
                 }}
               >
-                Let's Talk
+                Start Your Project →
               </motion.button>
             </div>
           </motion.div>

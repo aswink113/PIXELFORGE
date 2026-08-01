@@ -1,5 +1,77 @@
 // Native crypto.randomUUID used for id generation
 
+// ─── File-based DB Server Sync Interceptor ─────────────────────────────────────
+if (typeof window !== 'undefined') {
+  const originalSetItem = localStorage.setItem;
+  (localStorage as any)._originalSetItem = originalSetItem;
+  
+  localStorage.setItem = function (key, value) {
+    originalSetItem.apply(this, [key, value]);
+    if (key.startsWith('pf_')) {
+      saveLocalStorageToServer();
+    }
+  };
+}
+
+export const saveLocalStorageToServer = async () => {
+  try {
+    const fullDb: Record<string, any> = {};
+    const keys = ['pf_client_logos', 'pf_team', 'pf_testimonials', 'pf_projects', 'pf_blogs', 'pf_stats', 'pf_orbit_icons', 'pf_expertise_cards', 'pf_leads'];
+    keys.forEach(k => {
+      const val = localStorage.getItem(k);
+      fullDb[k] = val ? JSON.parse(val) : [];
+    });
+    
+    await fetch('/api/db', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(fullDb)
+    });
+  } catch (e) {
+    // Graceful fallback
+  }
+};
+
+export const syncLocalStorageWithServer = async () => {
+  try {
+    const res = await fetch('/api/db');
+    if (res.ok) {
+      const serverDb = await res.json();
+      
+      // If the server database is completely empty (newly created), upload the local seeded storage to it!
+      const isServerEmpty = !serverDb.pf_team || serverDb.pf_team.length === 0;
+      if (isServerEmpty) {
+        saveLocalStorageToServer();
+        return;
+      }
+
+      let hasChanged = false;
+      Object.keys(serverDb).forEach(key => {
+        const serverValStr = JSON.stringify(serverDb[key]);
+        const localVal = localStorage.getItem(key);
+        if (localVal !== serverValStr) {
+          if ((localStorage as any)._originalSetItem) {
+            (localStorage as any)._originalSetItem.apply(localStorage, [key, serverValStr]);
+          } else {
+            localStorage.setItem(key, serverValStr);
+          }
+          hasChanged = true;
+        }
+      });
+      if (hasChanged) {
+        window.dispatchEvent(new Event('storage'));
+      }
+    }
+  } catch (e) {
+    // Graceful fallback
+  }
+};
+
+// Auto-run sync on load
+if (typeof window !== 'undefined') {
+  syncLocalStorageWithServer();
+}
+
 export interface AdminUser {
   username: string;
   token: string;
@@ -109,7 +181,7 @@ const DEFAULT_TEAM: TeamMember[] = [
 const DEFAULT_TESTIMONIALS: Testimonial[] = [
   {
     id: "t-1",
-    quote: "PixelForge didn't just build our platform — they redefined how we think about our product. The strategic depth they brought was unlike any agency we'd worked with before.",
+    quote: "Lumiora didn't just build our platform — they redefined how we think about our product. The strategic depth they brought was unlike any agency we'd worked with before.",
     author: "Sarah Chen",
     role: "CEO, Luminary Ventures",
     avatar: "SC",
@@ -125,7 +197,7 @@ const DEFAULT_TESTIMONIALS: Testimonial[] = [
   },
   {
     id: "t-3",
-    quote: "Working with PixelForge felt like having a world-class product team embedded within our company. They cared about our outcomes as much as we did.",
+    quote: "Working with Lumiora felt like having a world-class product team embedded within our company. They cared about our outcomes as much as we did.",
     author: "Priya Nair",
     role: "Head of Product, Astra Labs",
     avatar: "PN",
@@ -446,4 +518,180 @@ export const loginAdmin = (usernameInput: string, passwordInput: string): string
 export const checkAdminToken = (token: string | null): boolean => {
   if (!token) return false;
   return token === localStorage.getItem('admin_token');
+};
+
+// ─── Orbit Icons & Expertise Cards Dynamic DB Methods ─────────────────────────
+
+export interface OrbitIcon {
+  id: string;
+  emoji: string;
+  label: string;
+  color: string;
+  iconUrl?: string; // base64 data URL for uploaded icon image
+}
+
+export interface ExpertiseCard {
+  id: string;
+  text: string;
+}
+
+const DEFAULT_ORBIT_ICONS: OrbitIcon[] = [
+  { id: "orbit-1", emoji: '🤖', label: 'AI', color: '#5E5BFF' },
+  { id: "orbit-2", emoji: '🌐', label: 'Web', color: '#7B68FF' },
+  { id: "orbit-3", emoji: '📱', label: 'Mobile', color: '#A855F7' },
+  { id: "orbit-4", emoji: '☁', label: 'Cloud', color: '#5E5BFF' },
+  { id: "orbit-5", emoji: '⚡', label: 'Automation', color: '#8A6DFF' },
+  { id: "orbit-6", emoji: '🎨', label: 'Design', color: '#A855F7' }
+];
+
+const DEFAULT_EXPERTISE_CARDS: ExpertiseCard[] = [
+  { id: "exp-1", text: '🤖 AI Automation' },
+  { id: "exp-2", text: '⚡ FastAPI + React' },
+  { id: "exp-3", text: '📱 Mobile Apps' },
+  { id: "exp-4", text: '☁ Cloud Solutions' },
+  { id: "exp-5", text: '🎨 Brand Identity' },
+  { id: "exp-6", text: '✨ UI/UX Design' }
+];
+
+const initDynamicHeroDB = () => {
+  if (!localStorage.getItem('pf_orbit_icons')) {
+    localStorage.setItem('pf_orbit_icons', JSON.stringify(DEFAULT_ORBIT_ICONS));
+  }
+  if (!localStorage.getItem('pf_expertise_cards')) {
+    localStorage.setItem('pf_expertise_cards', JSON.stringify(DEFAULT_EXPERTISE_CARDS));
+  }
+};
+
+initDynamicHeroDB();
+
+export const getOrbitIcons = (): OrbitIcon[] => {
+  initDynamicHeroDB();
+  return JSON.parse(localStorage.getItem('pf_orbit_icons') || '[]');
+};
+
+export const updateOrbitIcon = (id: string, emoji: string, label: string, color: string, iconUrl?: string): OrbitIcon => {
+  const icons = getOrbitIcons();
+  const index = icons.findIndex(i => i.id === id);
+  if (index !== -1) {
+    icons[index] = { id, emoji, label, color, iconUrl };
+    localStorage.setItem('pf_orbit_icons', JSON.stringify(icons));
+    return icons[index];
+  }
+  throw new Error('Orbit icon not found');
+};
+
+export const addOrbitIcon = (emoji: string, label: string, color: string, iconUrl?: string): OrbitIcon => {
+  const icons = getOrbitIcons();
+  const newIcon: OrbitIcon = {
+    id: crypto.randomUUID(),
+    emoji,
+    label,
+    color,
+    iconUrl
+  };
+  icons.push(newIcon);
+  localStorage.setItem('pf_orbit_icons', JSON.stringify(icons));
+  return newIcon;
+};
+
+export const deleteOrbitIcon = (id: string): void => {
+  const icons = getOrbitIcons();
+  const filtered = icons.filter(i => i.id !== id);
+  localStorage.setItem('pf_orbit_icons', JSON.stringify(filtered));
+};
+
+export const getExpertiseCards = (): ExpertiseCard[] => {
+  initDynamicHeroDB();
+  return JSON.parse(localStorage.getItem('pf_expertise_cards') || '[]');
+};
+
+export const updateExpertiseCard = (id: string, text: string): ExpertiseCard => {
+  const cards = getExpertiseCards();
+  const index = cards.findIndex(c => c.id === id);
+  if (index !== -1) {
+    cards[index] = { id, text };
+    localStorage.setItem('pf_expertise_cards', JSON.stringify(cards));
+    return cards[index];
+  }
+  throw new Error('Expertise card not found');
+};
+
+export const addExpertiseCard = (text: string): ExpertiseCard => {
+  const cards = getExpertiseCards();
+  const newCard: ExpertiseCard = {
+    id: crypto.randomUUID(),
+    text
+  };
+  cards.push(newCard);
+  localStorage.setItem('pf_expertise_cards', JSON.stringify(cards));
+  return newCard;
+};
+
+export const deleteExpertiseCard = (id: string): void => {
+  const cards = getExpertiseCards();
+  const filtered = cards.filter(c => c.id !== id);
+  localStorage.setItem('pf_expertise_cards', JSON.stringify(filtered));
+};
+
+// ==================== CLIENT LOGOS ====================
+export interface ClientLogo {
+  id: string;
+  name: string;
+  logoUrl: string; // base64 data URL
+}
+
+const DEFAULT_CLIENT_LOGOS: ClientLogo[] = [];
+
+const initClientLogoDB = () => {
+  const existing = localStorage.getItem('pf_client_logos');
+  if (existing === null) {
+    localStorage.setItem('pf_client_logos', JSON.stringify(DEFAULT_CLIENT_LOGOS));
+  } else {
+    try {
+      const parsed = JSON.parse(existing) as ClientLogo[];
+      // Filter out any default placeholder logo IDs
+      const cleaned = parsed.filter(l => !['logo-1', 'logo-2', 'logo-3', 'logo-4', 'logo-5'].includes(l.id));
+      if (cleaned.length !== parsed.length) {
+        localStorage.setItem('pf_client_logos', JSON.stringify(cleaned));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+};
+
+initClientLogoDB();
+
+export const getClientLogos = (): ClientLogo[] => {
+  initClientLogoDB();
+  return JSON.parse(localStorage.getItem('pf_client_logos') || '[]');
+};
+
+export const addClientLogo = (name: string, logoUrl: string): ClientLogo => {
+  const logos = getClientLogos();
+  const newLogo: ClientLogo = {
+    id: crypto.randomUUID(),
+    name,
+    logoUrl
+  };
+  logos.push(newLogo);
+  localStorage.setItem('pf_client_logos', JSON.stringify(logos));
+  return newLogo;
+};
+
+export const updateClientLogo = (id: string, name: string, logoUrl: string): ClientLogo => {
+  const logos = getClientLogos();
+  const index = logos.findIndex(l => l.id === id);
+  if (index !== -1) {
+    logos[index] = { id, name, logoUrl };
+    localStorage.setItem('pf_client_logos', JSON.stringify(logos));
+    return logos[index];
+  }
+  throw new Error('Client logo not found');
+};
+
+export const deleteClientLogo = (id: string): void => {
+  const logos = getClientLogos();
+  const filtered = logos.filter(l => l.id !== id);
+  localStorage.setItem('pf_client_logos', JSON.stringify(filtered));
 };

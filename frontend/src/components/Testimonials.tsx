@@ -15,7 +15,7 @@ interface Testimonial {
 const defaultTestimonials: Testimonial[] = [
   {
     id: 'default-1',
-    quote: "PixelForge didn't just build our platform — they redefined how we think about our product. The strategic depth they brought was unlike any agency we'd worked with before.",
+    quote: "Lumiora didn't just build our platform — they redefined how we think about our product. The strategic depth they brought was unlike any agency we'd worked with before.",
     author: 'Sarah Chen',
     role: 'CEO, Luminary Ventures',
     avatar: 'SC',
@@ -31,7 +31,7 @@ const defaultTestimonials: Testimonial[] = [
   },
   {
     id: 'default-3',
-    quote: "Working with PixelForge felt like having a world-class product team embedded within our company. They cared about our outcomes as much as we did.",
+    quote: "Working with Lumiora felt like having a world-class product team embedded within our company. They cared about our outcomes as much as we did.",
     author: 'Priya Nair',
     role: 'Head of Product, Astra Labs',
     avatar: 'PN',
@@ -54,6 +54,21 @@ export const Testimonials = () => {
     } catch (err) {
       console.error('Failed to fetch testimonials from local DB', err);
     }
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'pf_testimonials') {
+        try {
+          const data = getTestimonials();
+          if (data && data.length > 0) {
+            setTestimonials(data);
+          }
+        } catch (err) {
+          console.error('Failed to fetch testimonials from local DB', err);
+        }
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   return (

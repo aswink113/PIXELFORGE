@@ -316,7 +316,17 @@ export const TeamPage = () => {
     }
   };
 
-  useEffect(() => { fetchTeam(); }, []);
+  useEffect(() => {
+    fetchTeam();
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'pf_team') {
+        fetchTeam();
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const handleDelete = (id: string) => setMembers(prev => prev.filter(m => m.id !== id));
 

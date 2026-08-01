@@ -29,6 +29,21 @@ export const StatsBar = () => {
     } catch (err) {
       console.error('Error fetching stats:', err);
     }
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'pf_stats') {
+        try {
+          const data = getStats();
+          if (data && data.length > 0) {
+            setStatsData(data);
+          }
+        } catch (err) {
+          console.error('Error fetching stats:', err);
+        }
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   return (

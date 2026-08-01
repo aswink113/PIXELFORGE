@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Lenis from '@studio-freight/lenis';
 import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion';
@@ -13,6 +13,7 @@ import { ServicesSection } from './components/ServicesSection';
 import { Process } from './components/Process';
 import { Portfolio } from './components/Portfolio';
 import { Testimonials } from './components/Testimonials';
+import { Clients } from './components/Clients';
 import { CTA } from './components/CTA';
 import { ProjectPlannerModal } from './components/ProjectPlannerModal';
 import { WorkPage } from './pages/WorkPage';
@@ -28,6 +29,7 @@ function HomePage() {
   const [loading, setLoading] = useState(!hasLoadedOnce);
   const [plannerOpen, setPlannerOpen] = useState(false);
   const [plannerCategory, setPlannerCategory] = useState('');
+  const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
     const lenis = new Lenis({
@@ -39,6 +41,7 @@ function HomePage() {
       wheelMultiplier: 1,
       touchMultiplier: 2,
     });
+    lenisRef.current = lenis;
 
     function raf(time: number) {
       lenis.raf(time);
@@ -50,7 +53,10 @@ function HomePage() {
       window.scrollTo(0, 0);
     }
 
-    return () => { lenis.destroy(); };
+    return () => { 
+      lenis.destroy();
+      lenisRef.current = null;
+    };
   }, []);
 
   useEffect(() => {
@@ -59,8 +65,12 @@ function HomePage() {
       const element = document.getElementById(id);
       if (element) {
         const timer = setTimeout(() => {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }, 150);
+          if (lenisRef.current) {
+            lenisRef.current.scrollTo(element, { duration: 1.2, immediate: false });
+          } else {
+            element.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 200);
         return () => clearTimeout(timer);
       }
     }
@@ -90,6 +100,7 @@ function HomePage() {
               <StatsBar />
               <About />
               <ServicesSection />
+              <Clients />
               <Process />
               <Portfolio onOpenPlanner={openPlanner} />
               <Testimonials />

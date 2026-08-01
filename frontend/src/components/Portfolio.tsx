@@ -138,10 +138,25 @@ export const Portfolio = ({ onOpenPlanner }: { onOpenPlanner: (category: string)
     } catch (err) {
       console.error('Failed to fetch portfolio projects', err);
     }
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'pf_projects') {
+        try {
+          const data = getPortfolio();
+          if (data && data.length > 0) {
+            setProjects(data);
+          }
+        } catch (err) {
+          console.error('Failed to fetch portfolio projects', err);
+        }
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   return (
-    <section id="work" className="relative py-28 bg-brand-bg border-t border-border-color z-10 px-6 transition-colors duration-300">
+    <section id="projects" className="relative py-28 bg-brand-bg border-t border-border-color z-10 px-6 transition-colors duration-300">
       {/* Ambient background lights */}
       <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-purple-900/5 rounded-full blur-[180px] pointer-events-none" />
 

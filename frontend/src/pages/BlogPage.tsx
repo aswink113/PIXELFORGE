@@ -124,6 +124,21 @@ export const BlogPage = () => {
     } catch (err) {
       console.error('Failed to fetch blog posts', err);
     }
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'pf_blogs') {
+        try {
+          const data = getBlogs();
+          if (data && data.length > 0) {
+            setPosts(data);
+          }
+        } catch (err) {
+          console.error('Failed to fetch blog posts', err);
+        }
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   const filtered = activeCategory === 'All'

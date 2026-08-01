@@ -1,5 +1,8 @@
 import { useRef } from 'react';
 import { motion, useInView, useScroll, useTransform } from 'framer-motion';
+import { Link } from 'react-router-dom';
+
+const MotionLink = motion(Link);
 
 const pillars = [
   {
@@ -98,7 +101,7 @@ export const About = () => {
             variants={itemVariants}
             className="text-text-muted text-lg leading-relaxed mb-6"
           >
-            PixelForge is a full-service digital consultancy specialising in crafting
+            Lumiora is a full-service digital consultancy specialising in crafting
             transformative digital products. We partner with startups, scale-ups, and
             enterprises to design, build, and launch experiences that drive real business
             outcomes.
@@ -113,16 +116,16 @@ export const About = () => {
             — we engineer competitive advantages.
           </motion.p>
 
-          <motion.a
+          <MotionLink
             variants={itemVariants}
-            href="#contact"
+            to="/team"
             className="inline-flex items-center gap-3 text-sm font-semibold text-text-main border border-border-color px-6 py-3 rounded-full hover:border-blue-500/50 hover:text-blue-400 transition-all duration-300 hover-target cursor-none"
           >
             Meet the Team
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
             </svg>
-          </motion.a>
+          </MotionLink>
         </motion.div>
 
         {/* Right: Pillars */}

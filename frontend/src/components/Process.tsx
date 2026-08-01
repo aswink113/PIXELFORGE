@@ -125,7 +125,17 @@ export const Process = () => {
                 >
                   {/* Content card */}
                   <div className={`w-full md:w-[calc(50%-48px)] ${isEven ? 'md:pr-12 md:text-right' : 'md:pl-12'} pl-16 md:pl-0`}>
-                    <div className="group relative p-6 rounded-2xl border border-border-color bg-card-bg hover:bg-card-hover-bg hover:border-blue-500/20 transition-all duration-500">
+                    <motion.div 
+                      initial={{ borderColor: 'rgba(94, 91, 255, 0.08)', backgroundColor: 'rgba(255, 255, 255, 0.5)', boxShadow: '0 8px 32px 0 rgba(94, 91, 255, 0.05)' }}
+                      whileInView={{ 
+                        borderColor: 'rgba(94, 91, 255, 0.35)', 
+                        backgroundColor: 'rgba(94, 91, 255, 0.04)', 
+                        boxShadow: '0 12px 30px -10px rgba(94, 91, 255, 0.16)' 
+                      }}
+                      viewport={{ margin: "-140px" }}
+                      transition={{ duration: 0.5 }}
+                      className="group relative p-6 rounded-2xl border transition-colors duration-300"
+                    >
                       <div className={`flex items-center gap-3 mb-3 ${isEven ? 'md:flex-row-reverse' : ''}`}>
                         <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/15 flex items-center justify-center text-blue-400 flex-shrink-0">
                           {step.icon}
@@ -140,15 +150,28 @@ export const Process = () => {
                         </svg>
                         {step.duration}
                       </span>
-                      <div className="absolute bottom-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-blue-500/40 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
-                    </div>
+                      <motion.div 
+                        initial={{ scaleX: 0 }}
+                        whileInView={{ scaleX: 1 }}
+                        viewport={{ margin: "-140px" }}
+                        transition={{ duration: 0.5 }}
+                        className="absolute bottom-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-[#5E5BFF]/60 to-transparent origin-center" 
+                      />
+                    </motion.div>
                   </div>
-
-                  {/* Centre dot */}
+ 
+                   {/* Centre dot */}
                   <motion.div 
-                    whileInView={{ scale: 1.25 }}
-                    viewport={{ margin: "-120px" }}
-                    className="absolute left-[20px] md:left-1/2 md:-translate-x-1/2 top-6 w-[14px] h-[14px] rounded-full bg-blue-500 border-2 border-brand-bg ring-4 ring-blue-500/20 flex-shrink-0 transition-colors duration-300" 
+                    initial={{ scale: 1, backgroundColor: "#E5E7EB", boxShadow: "0 0 0px rgba(94, 91, 255, 0)" }}
+                    whileInView={{ 
+                      scale: 1.35,
+                      backgroundColor: "#5E5BFF",
+                      boxShadow: "0 0 16px 4px rgba(94, 91, 255, 0.4)",
+                      borderColor: "#ffffff"
+                    }}
+                    viewport={{ margin: "-140px" }}
+                    transition={{ duration: 0.4 }}
+                    className="absolute left-[20px] md:left-1/2 md:-translate-x-1/2 top-6 w-[14px] h-[14px] rounded-full border-2 border-brand-bg ring-4 ring-[#5E5BFF]/10 flex-shrink-0 z-20" 
                   />
                 </motion.div>
               );

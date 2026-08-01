@@ -1,202 +1,135 @@
-import { useRef, useState } from 'react';
-import { motion, useInView, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import { useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
 
 const services = [
   {
     number: '01',
     title: 'Digital Strategy & Consulting',
-    short: 'Strategy',
     desc: 'We analyse your market, define your digital roadmap, and create a blueprint for sustainable growth. From UX audits to tech stack decisions — we guide every strategic move.',
-    tags: ['Brand Positioning', 'UX Research', 'Roadmapping', 'Tech Consulting'],
-    gradient: 'from-blue-500/20 to-cyan-500/5',
-    accent: 'text-blue-400',
-    border: 'border-blue-500/20',
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+      </svg>
+    ),
   },
   {
     number: '02',
     title: 'UI/UX Design & Prototyping',
-    short: 'Design',
     desc: 'We craft intuitive, visually stunning interfaces grounded in user psychology. Every design decision is purposeful, every interaction delightful.',
-    tags: ['Figma Prototypes', 'Design Systems', 'Motion Design', 'Accessibility'],
-    gradient: 'from-purple-500/20 to-violet-500/5',
-    accent: 'text-purple-400',
-    border: 'border-purple-500/20',
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+      </svg>
+    ),
   },
   {
     number: '03',
     title: 'Web & Mobile Development',
-    short: 'Development',
     desc: 'From high-performance React applications to native mobile apps — we build scalable, maintainable software that grows with your business.',
-    tags: ['React / Next.js', 'React Native', 'Node.js', 'Cloud Infrastructure'],
-    gradient: 'from-emerald-500/20 to-teal-500/5',
-    accent: 'text-emerald-400',
-    border: 'border-emerald-500/20',
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+      </svg>
+    ),
   },
   {
     number: '04',
     title: 'AI Integration & Automation',
-    short: 'AI & Automation',
     desc: 'We embed intelligent capabilities into your products — from custom LLM integrations to automated pipelines that eliminate repetitive workflows.',
-    tags: ['LLM Integration', 'Workflow Automation', 'Data Pipelines', 'Custom AI Models'],
-    gradient: 'from-orange-500/20 to-amber-500/5',
-    accent: 'text-orange-400',
-    border: 'border-orange-500/20',
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+      </svg>
+    ),
   },
   {
     number: '05',
     title: 'Brand Identity & Content',
-    short: 'Branding',
     desc: 'We build cohesive brand identities that resonate and endure. Logo, typography, tone of voice, and content strategy — all unified under a single, powerful narrative.',
-    tags: ['Logo Design', 'Brand Guidelines', 'Copywriting', 'Social Strategy'],
-    gradient: 'from-pink-500/20 to-rose-500/5',
-    accent: 'text-pink-400',
-    border: 'border-pink-500/20',
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+      </svg>
+    ),
   },
   {
     number: '06',
     title: 'Growth & Performance Marketing',
-    short: 'Growth',
     desc: 'Data-driven campaigns that fill your pipeline. We manage paid media, SEO, conversion optimisation, and analytics to maximise your ROI.',
-    tags: ['SEO & SEM', 'Paid Ads', 'CRO', 'Analytics & Reporting'],
-    gradient: 'from-cyan-500/20 to-sky-500/5',
-    accent: 'text-cyan-400',
-    border: 'border-cyan-500/20',
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+      </svg>
+    ),
   },
 ];
 
 const containerVariants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.08 } },
+  visible: { transition: { staggerChildren: 0.06 } },
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.76, 0, 0.24, 1] as const } },
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as const } },
 };
 
 export const ServicesSection = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: '-80px' });
-  const [hovered, setHovered] = useState<number | null>(null);
-
-  // Scroll parallax for ambient blobs
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"]
-  });
-  const blob1Y = useTransform(scrollYProgress, [0, 1], [-80, 80]);
-  const blob2Y = useTransform(scrollYProgress, [0, 1], [80, -80]);
+  const inView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section id="services" ref={ref} className="relative py-28 overflow-hidden bg-brand-bg transition-colors duration-300">
-      {/* Ambient blobs with scroll parallax */}
-      <motion.div 
-        style={{ y: blob1Y }}
-        className="absolute left-0 top-1/4 w-[500px] h-[500px] bg-blue-700/8 rounded-full blur-[200px] pointer-events-none" 
-      />
-      <motion.div 
-        style={{ y: blob2Y }}
-        className="absolute right-0 bottom-1/4 w-[400px] h-[400px] bg-purple-700/8 rounded-full blur-[160px] pointer-events-none" 
-      />
-
-      <div className="max-w-6xl mx-auto px-6">
+    <section id="services" ref={ref} className="py-28 bg-[#FCFCFC] border-t border-black/[0.01]">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-          className="mb-16 flex flex-col md:flex-row md:items-end md:justify-between gap-6"
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="mb-20 flex flex-col md:flex-row md:items-end justify-between gap-6"
         >
-          <div>
-            <span className="inline-block text-xs uppercase tracking-[0.3em] text-purple-400 font-semibold mb-6 px-4 py-1.5 rounded-full border border-purple-500/20 bg-purple-500/5">
+          <div className="max-w-xl">
+            <span className="text-xs font-bold uppercase tracking-[0.25em] text-[#5E5BFF] block mb-3">
               What We Do
             </span>
-            <h2 className="text-4xl md:text-5xl font-bold font-heading leading-[1.1] tracking-tight text-text-main">
-              End-to-End Digital{' '}
-              <span className="text-gradient">Services</span>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-[#111111] tracking-tight font-heading leading-tight">
+              End-to-End Digital Services
             </h2>
           </div>
-          <p className="text-text-muted max-w-sm text-base leading-relaxed md:text-right">
-            A holistic suite of services designed to take your brand from concept to market-leader.
-          </p>
+          <div className="max-w-md">
+            <p className="text-gray-500 text-sm md:text-base leading-relaxed">
+              A holistic suite of premium digital services designed to take your brand from initial concept to dominant market leader.
+            </p>
+          </div>
         </motion.div>
 
-        {/* Service Cards */}
+        {/* Clean Minimalist Cards Grid */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate={inView ? 'visible' : 'hidden'}
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-5"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
         >
           {services.map((svc, i) => (
             <motion.div
               key={i}
               variants={itemVariants}
-              onMouseEnter={() => setHovered(i)}
-              onMouseLeave={() => setHovered(null)}
-              className={`group relative rounded-2xl border p-7 cursor-none overflow-hidden transition-all duration-500 ${
-                hovered === i ? `bg-gradient-to-br ${svc.gradient} ${svc.border}` : 'bg-card-bg border-border-color'
-              }`}
+              className="group p-8 rounded-2xl border border-black/[0.04] bg-white transition-all duration-300 hover:border-[#5E5BFF]/30 hover:shadow-[0_12px_40px_rgba(0,0,0,0.02)]"
             >
-              {/* Number */}
-              <span className={`text-xs font-mono font-semibold tracking-widest ${hovered === i ? svc.accent : 'text-text-muted/60'} transition-colors duration-300`}>
-                {svc.number}
-              </span>
-
-              <h3 className="mt-3 mb-3 text-lg font-semibold font-heading text-text-main leading-snug">
+              <div className="flex items-center justify-between mb-6">
+                <div className="w-10 h-10 rounded-xl bg-[#5E5BFF]/5 text-[#5E5BFF] flex items-center justify-center transition-colors duration-300 group-hover:bg-[#5E5BFF] group-hover:text-white">
+                  {svc.icon}
+                </div>
+                <span className="text-xs font-mono font-bold text-gray-300 group-hover:text-[#5E5BFF]/50 transition-colors">
+                  {svc.number}
+                </span>
+              </div>
+              <h3 className="text-lg font-bold text-[#111111] tracking-tight mb-3 font-heading">
                 {svc.title}
               </h3>
-
-              <AnimatePresence mode="wait">
-                {hovered === i ? (
-                  <motion.p
-                    key="desc"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.3 }}
-                    className="text-text-muted text-sm leading-relaxed mb-5"
-                  >
-                    {svc.desc}
-                  </motion.p>
-                ) : (
-                  <motion.p
-                    key="short"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.3 }}
-                    className="text-text-muted/50 text-sm leading-relaxed mb-5"
-                  >
-                    Hover to learn more →
-                  </motion.p>
-                )}
-              </AnimatePresence>
-
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2">
-                {svc.tags.map((tag, t) => (
-                  <span
-                    key={t}
-                    className={`text-[11px] font-medium px-2.5 py-1 rounded-full border transition-all duration-300 ${
-                      hovered === i
-                        ? `${svc.accent} ${svc.border} bg-white/5`
-                        : 'text-text-muted/60 border-border-color bg-card-bg'
-                    }`}
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-
-              {/* Corner arrow */}
-              <div className={`absolute top-6 right-6 w-8 h-8 rounded-full border flex items-center justify-center transition-all duration-500 ${
-                hovered === i ? `${svc.border} ${svc.accent}` : 'border-border-color text-text-muted/40'
-              }`}>
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 17L17 7M17 7H7M17 7v10" />
-                </svg>
-              </div>
+              <p className="text-gray-500 text-xs md:text-[13px] leading-relaxed">
+                {svc.desc}
+              </p>
             </motion.div>
           ))}
         </motion.div>
