@@ -155,11 +155,11 @@ export const ServicesSection = () => {
         <div className="absolute top-1/4 left-10 w-96 h-96 bg-[#6D4AFF]/5 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-1/4 right-10 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Left Column (48%) - Typography & Content */}
-        <div className="w-full md:w-[48%] h-[50vh] md:h-full flex flex-col justify-center px-8 md:px-16 lg:px-24 z-20 relative">
+        {/* Left Column (54%) - Typography & Content */}
+        <div className="w-full md:w-[54%] h-[50vh] md:h-full flex flex-col justify-center px-6 md:pl-12 md:pr-2 lg:pl-20 lg:pr-4 z-20 relative">
           
           {/* Progress Bar & Header */}
-          <div className="absolute top-10 lg:top-16 left-8 lg:left-24 flex items-center gap-4 z-30">
+          <div className="absolute top-10 lg:top-16 left-6 lg:left-20 flex items-center gap-4 z-30">
             <div className="w-16 h-[3px] bg-black/10 overflow-hidden rounded-full">
               <motion.div 
                 className="h-full bg-gradient-to-r from-[#6D4AFF] to-[#8B5DFF]"
@@ -237,7 +237,7 @@ export const ServicesSection = () => {
           </AnimatePresence>
 
           {/* Quick Service Navigator Tabs */}
-          <div className="absolute bottom-10 left-8 lg:left-24 flex items-center gap-2 z-30">
+          <div className="absolute bottom-10 left-6 lg:left-20 flex items-center gap-2 z-30">
             {servicesData.map((svc, idx) => (
               <button
                 key={svc.number}
@@ -261,12 +261,12 @@ export const ServicesSection = () => {
 
         </div>
 
-        {/* Right Column (52%) - Floating 3D Transparent Showcase (No Background Box) */}
+        {/* Right Column (46%) - Floating 3D Transparent Showcase */}
         <div 
           ref={cardRef}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
-          className="w-full md:w-[52%] h-[50vh] md:h-full relative bg-transparent z-10 flex items-center justify-center p-6 md:p-12 lg:p-16"
+          className="w-full md:w-[46%] h-[50vh] md:h-full relative bg-transparent z-10 flex items-center justify-start p-2 md:p-4 lg:p-6"
         >
           <AnimatePresence mode="wait">
             <motion.div
