@@ -281,16 +281,6 @@ export const ServicesSection = () => {
               {/* Soft Ambient Colorful Background Glow */}
               <div className={`absolute inset-10 bg-gradient-to-tr ${activeService.color} opacity-25 rounded-full blur-[100px] -z-10 animate-pulse transition-all duration-1000`} />
 
-              {/* Floating Floating Pill Badges */}
-              <div className="absolute top-4 left-4 z-20 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur-md border border-black/5 text-[#6D4AFF] text-xs font-bold shadow-lg shadow-purple-500/10">
-                <Zap className="w-3.5 h-3.5 text-[#6D4AFF]" />
-                {activeService.badge}
-              </div>
-              <div className="absolute top-4 right-4 z-20 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur-md border border-black/5 text-stone-800 text-xs font-mono font-bold shadow-lg shadow-purple-500/10">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#6D4AFF]" />
-                {activeService.stat}
-              </div>
-
               {/* Directly Floating Transparent Image */}
               <motion.img 
                 src={activeService.image} 
