@@ -194,25 +194,47 @@ export const ServicesSection = () => {
           </AnimatePresence>
         </div>
 
-        {/* Right Column (55%) - Image Visuals */}
-        <div className="w-full md:w-[55%] h-[50vh] md:h-full relative bg-transparent z-10 flex items-center justify-center p-12 lg:p-24 overflow-hidden">
+        {/* Right Column (55%) - Glassmorphism 3D Image Showcase */}
+        <div className="w-full md:w-[55%] h-[50vh] md:h-full relative bg-transparent z-10 flex items-center justify-center p-6 md:p-12 lg:p-16">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeIndex}
-              initial={{ opacity: 0, scale: 0.9, y: 50, rotateX: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }}
-              exit={{ opacity: 0, scale: 1.05, y: -50, rotateX: -10 }}
+              initial={{ opacity: 0, scale: 0.85, y: 60, rotateY: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0, rotateY: 0 }}
+              exit={{ opacity: 0, scale: 1.05, y: -60, rotateY: -15 }}
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full h-full flex items-center justify-center perspective-[1000px]"
+              className="relative w-full max-w-xl aspect-[4/3] flex items-center justify-center perspective-[1200px]"
             >
-              <motion.img 
-                src={activeService.image} 
-                alt={activeService.title}
-                className="w-full h-auto max-h-[80vh] object-contain drop-shadow-2xl"
-                // Add a subtle continuous floating animation
-                animate={{ y: [0, -15, 0] }}
-                transition={{ duration: 6, ease: "easeInOut", repeat: Infinity }}
-              />
+              {/* Outer Ambient Glowing Aura */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-[#6D4AFF]/30 via-[#8B5DFF]/25 to-purple-500/20 rounded-[3rem] blur-3xl -z-10 animate-pulse" />
+
+              {/* Glowing Gradient Border Frame */}
+              <div className="relative w-full h-full p-[2px] rounded-[2.5rem] bg-gradient-to-br from-[#6D4AFF] via-[#8B5DFF]/60 to-[#6D4AFF]/20 shadow-[0_25px_60px_rgba(109,74,255,0.22)] group transition-all duration-500">
+                
+                {/* Glassmorphic Inner Container */}
+                <div className="w-full h-full rounded-[2.4rem] bg-white/40 backdrop-blur-2xl border border-white/60 p-6 md:p-8 flex items-center justify-center relative overflow-hidden shadow-inner">
+                  
+                  {/* Subtle Glass Reflection Highlight */}
+                  <div className="absolute -top-24 -left-24 w-64 h-64 bg-white/40 rounded-full blur-2xl pointer-events-none" />
+                  <div className="absolute -bottom-20 -right-20 w-56 h-56 bg-[#6D4AFF]/10 rounded-full blur-2xl pointer-events-none" />
+
+                  {/* Floating 3D Pop-Out Image */}
+                  <motion.img 
+                    src={activeService.image} 
+                    alt={activeService.title}
+                    className="max-w-full max-h-full object-contain filter drop-shadow-[0_20px_35px_rgba(109,74,255,0.3)] z-10 transition-transform duration-500 hover:scale-105"
+                    animate={{ 
+                      y: [0, -12, 0],
+                      rotateZ: [0, 1.5, 0, -1.5, 0]
+                    }}
+                    transition={{ 
+                      duration: 6, 
+                      ease: "easeInOut", 
+                      repeat: Infinity 
+                    }}
+                  />
+                </div>
+              </div>
             </motion.div>
           </AnimatePresence>
         </div>
