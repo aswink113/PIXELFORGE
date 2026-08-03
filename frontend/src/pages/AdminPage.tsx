@@ -7,6 +7,7 @@ import {
   Phone, Building, BarChart3, Globe, Layers, Upload, X
 } from 'lucide-react';
 import { CustomCursor } from '../components/CustomCursor';
+import { ConfirmModal } from '../components/ConfirmModal';
 import { 
   getStats, updateStat, getTestimonials, addTestimonial, deleteTestimonial,
   getPortfolio, addProject, deleteProject, getBlogs, addBlog, deleteBlog,
@@ -133,6 +134,33 @@ export const AdminPage = () => {
     setTimeout(() => setNotification(null), 3000);
   };
 
+  // Confirmation modal state
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmText?: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+
+  const requestConfirm = (title: string, message: string, onConfirm: () => void, confirmText = 'Delete') => {
+    setConfirmConfig({
+      isOpen: true,
+      title,
+      message,
+      confirmText,
+      onConfirm: () => {
+        onConfirm();
+        setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+      }
+    });
+  };
+
   // Check backend session (mocked)
   useEffect(() => {
     if (token) {
@@ -215,14 +243,15 @@ export const AdminPage = () => {
   };
 
   const handleDeleteTeam = async (id: string) => {
-    if (!confirm('Are you sure you want to remove this team member?')) return;
-    try {
-      deleteTeamMember(id);
-      triggerNotification('Team member removed');
-      setRefreshTrigger(p => p + 1);
-    } catch (err: any) {
-      triggerNotification(err.message, 'error');
-    }
+    requestConfirm('Remove Team Member', 'Are you sure you want to remove this team member?', () => {
+      try {
+        deleteTeamMember(id);
+        triggerNotification('Team member removed');
+        setRefreshTrigger(p => p + 1);
+      } catch (err: any) {
+        triggerNotification(err.message, 'error');
+      }
+    }, 'Remove');
   };
 
   // Testimonials
@@ -249,14 +278,15 @@ export const AdminPage = () => {
   };
 
   const handleDeleteTestimonial = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this testimonial?')) return;
-    try {
-      deleteTestimonial(id);
-      triggerNotification('Testimonial deleted');
-      setRefreshTrigger(p => p + 1);
-    } catch (err: any) {
-      triggerNotification(err.message, 'error');
-    }
+    requestConfirm('Delete Testimonial', 'Are you sure you want to delete this testimonial?', () => {
+      try {
+        deleteTestimonial(id);
+        triggerNotification('Testimonial deleted');
+        setRefreshTrigger(p => p + 1);
+      } catch (err: any) {
+        triggerNotification(err.message, 'error');
+      }
+    });
   };
 
   // Portfolio
@@ -283,14 +313,15 @@ export const AdminPage = () => {
   };
 
   const handleDeleteProject = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this project?')) return;
-    try {
-      deleteProject(id);
-      triggerNotification('Project deleted');
-      setRefreshTrigger(p => p + 1);
-    } catch (err: any) {
-      triggerNotification(err.message, 'error');
-    }
+    requestConfirm('Delete Project', 'Are you sure you want to delete this project?', () => {
+      try {
+        deleteProject(id);
+        triggerNotification('Project deleted');
+        setRefreshTrigger(p => p + 1);
+      } catch (err: any) {
+        triggerNotification(err.message, 'error');
+      }
+    });
   };
 
   // Blogs
@@ -318,26 +349,28 @@ export const AdminPage = () => {
   };
 
   const handleDeleteBlog = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this blog post?')) return;
-    try {
-      deleteBlog(id);
-      triggerNotification('Blog post deleted');
-      setRefreshTrigger(p => p + 1);
-    } catch (err: any) {
-      triggerNotification(err.message, 'error');
-    }
+    requestConfirm('Delete Blog Post', 'Are you sure you want to delete this blog post?', () => {
+      try {
+        deleteBlog(id);
+        triggerNotification('Blog post deleted');
+        setRefreshTrigger(p => p + 1);
+      } catch (err: any) {
+        triggerNotification(err.message, 'error');
+      }
+    });
   };
 
   // Leads
   const handleDeleteLead = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this consultation request?')) return;
-    try {
-      deleteLead(id);
-      triggerNotification('Consultation inquiry deleted');
-      setRefreshTrigger(p => p + 1);
-    } catch (err: any) {
-      triggerNotification(err.message, 'error');
-    }
+    requestConfirm('Delete Inquiry', 'Are you sure you want to delete this consultation request?', () => {
+      try {
+        deleteLead(id);
+        triggerNotification('Consultation inquiry deleted');
+        setRefreshTrigger(p => p + 1);
+      } catch (err: any) {
+        triggerNotification(err.message, 'error');
+      }
+    });
   };
 
   // Stats Bar CRUD
@@ -406,14 +439,15 @@ export const AdminPage = () => {
   };
 
   const handleDeleteOrbitIcon = (id: string) => {
-    if (!confirm('Are you sure you want to delete this orbit icon?')) return;
-    try {
-      deleteOrbitIcon(id);
-      triggerNotification('Orbit icon deleted');
-      setRefreshTrigger(p => p + 1);
-    } catch (err: any) {
-      triggerNotification(err.message, 'error');
-    }
+    requestConfirm('Delete Orbit Icon', 'Are you sure you want to delete this orbit icon?', () => {
+      try {
+        deleteOrbitIcon(id);
+        triggerNotification('Orbit icon deleted');
+        setRefreshTrigger(p => p + 1);
+      } catch (err: any) {
+        triggerNotification(err.message, 'error');
+      }
+    });
   };
 
   // Expertise Cards CRUD
@@ -448,14 +482,15 @@ export const AdminPage = () => {
     }
   };
   const handleDeleteExpertiseCard = (id: string) => {
-    if (!confirm('Are you sure you want to delete this expertise card?')) return;
-    try {
-      deleteExpertiseCard(id);
-      triggerNotification('Expertise card deleted');
-      setRefreshTrigger(p => p + 1);
-    } catch (err: any) {
-      triggerNotification(err.message, 'error');
-    }
+    requestConfirm('Delete Expertise Card', 'Are you sure you want to delete this expertise card?', () => {
+      try {
+        deleteExpertiseCard(id);
+        triggerNotification('Expertise card deleted');
+        setRefreshTrigger(p => p + 1);
+      } catch (err: any) {
+        triggerNotification(err.message, 'error');
+      }
+    });
   };
 
   // Clients CRUD
@@ -533,14 +568,15 @@ export const AdminPage = () => {
   };
 
   const handleDeleteClientLogo = (id: string) => {
-    if (!confirm('Are you sure you want to delete this client logo?')) return;
-    try {
-      deleteClientLogo(id);
-      triggerNotification('Client logo deleted');
-      setRefreshTrigger(p => p + 1);
-    } catch (err: any) {
-      triggerNotification(err.message, 'error');
-    }
+    requestConfirm('Delete Client Logo', 'Are you sure you want to delete this client logo?', () => {
+      try {
+        deleteClientLogo(id);
+        triggerNotification('Client logo deleted');
+        setRefreshTrigger(p => p + 1);
+      } catch (err: any) {
+        triggerNotification(err.message, 'error');
+      }
+    });
   };
 
   return (
@@ -1861,6 +1897,16 @@ export const AdminPage = () => {
           </main>
         </div>
       )}
+
+      {/* Sweet Alert style custom Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        confirmText={confirmConfig.confirmText}
+        onConfirm={confirmConfig.onConfirm}
+        onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 };
