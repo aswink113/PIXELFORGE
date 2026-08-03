@@ -93,7 +93,7 @@ export const ServicesSection = () => {
       filter: 'blur(0px)',
       transition: {
         duration: 1,
-        ease: [0.16, 1, 0.3, 1] // Power4.out equivalent
+        ease: [0.16, 1, 0.3, 1] as any // Power4.out equivalent
       }
     },
     exit: {
@@ -104,7 +104,7 @@ export const ServicesSection = () => {
       filter: 'blur(8px)',
       transition: {
         duration: 1,
-        ease: [0.16, 1, 0.3, 1]
+        ease: [0.16, 1, 0.3, 1] as any
       }
     }
   };

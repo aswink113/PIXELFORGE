@@ -34,7 +34,7 @@ const AnimatedSceneWrapper = ({
 }) => {
   const groupRef = useRef<THREE.Group>(null);
 
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     if (!groupRef.current) return;
     
     // Determine target state based on relative position
@@ -67,9 +67,7 @@ const AnimatedSceneWrapper = ({
     
     // Material Opacity Fade
     // We traverse all materials and fade them
-    const targetOpacity = isActive ? 1 : 0; // The spec asks for opacity 0.35 on previous, but 0 is cleaner for full out-of-view, let's stick to 0 for non-active after it moves away, but we can interpolate opacity.
-    
-    // Traverse is slow to do every frame, but fine for small graphs.
+    // We traverse all materials and fade them
     // Instead, we just let it translate out of bounds and scale.
     // To strictly follow the "opacity 0.35" for previous, we do:
     let tOpacity = isActive ? 1 : (isPrevious && Math.abs(index - activeServiceIndex) === 1 ? 0.35 : 0);

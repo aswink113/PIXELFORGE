@@ -8,7 +8,6 @@ import {
   TorusKnot,
   Cylinder,
   Box,
-  Points,
   PointMaterial,
   Icosahedron
 } from '@react-three/drei';
@@ -141,7 +140,7 @@ export const AIScene = () => {
       <Float speed={1.5} rotationIntensity={0.2} floatIntensity={1}>
         <points ref={pointsRef}>
           <bufferGeometry>
-            <bufferAttribute attach="attributes-position" count={positions.length / 3} array={positions} itemSize={3} />
+            <bufferAttribute attach="attributes-position" args={[positions, 3]} />
           </bufferGeometry>
           <PointMaterial size={0.06} color="#6D4AFF" transparent opacity={0.8} sizeAttenuation={true} />
         </points>
