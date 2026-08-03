@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
-import { motion, useScroll, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight } from 'lucide-react';
+import { motion, useScroll, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { ArrowUpRight, Sparkles, CheckCircle2, ShieldCheck, Zap } from 'lucide-react';
 
 const servicesData = [
   {
@@ -9,7 +9,10 @@ const servicesData = [
     title: 'Digital Strategy & Consulting',
     desc: 'We analyse your market, define your digital roadmap, and create a blueprint for sustainable growth. From UX audits to tech stack decisions — we guide every strategic move.',
     tags: ['Market Analysis', 'Tech Stack Design', 'Growth Roadmaps'],
-    image: '/services/01_strategy.png'
+    image: '/services/01_strategy.png',
+    badge: 'Strategic Vision',
+    stat: '98% Success Rate',
+    color: 'from-[#6D4AFF] to-[#8B5DFF]'
   },
   {
     number: '02',
@@ -17,7 +20,10 @@ const servicesData = [
     title: 'UI/UX Design & Prototyping',
     desc: 'We craft intuitive, visually stunning interfaces grounded in user psychology. Every design decision is purposeful, every interaction delightful.',
     tags: ['Wireframing', 'Design Systems', 'Interactive Prototypes'],
-    image: '/services/02_uiux.png'
+    image: '/services/02_uiux.png',
+    badge: 'Human-Centered UX',
+    stat: 'Awwwards Quality',
+    color: 'from-[#EC4899] to-[#8B5DFF]'
   },
   {
     number: '03',
@@ -25,7 +31,10 @@ const servicesData = [
     title: 'Web & Mobile Development',
     desc: 'From high-performance React applications to native mobile apps — we build scalable, maintainable software that grows with your business.',
     tags: ['React & Next.js', 'React Native', 'Cloud Architecture'],
-    image: '/services/03_dev.png'
+    image: '/services/03_dev.png',
+    badge: 'High Performance',
+    stat: '60 FPS Smooth',
+    color: 'from-[#3B82F6] to-[#6D4AFF]'
   },
   {
     number: '04',
@@ -33,7 +42,10 @@ const servicesData = [
     title: 'AI Integration & Automation',
     desc: 'We embed intelligent capabilities into your products — from custom LLM integrations to automated pipelines that eliminate repetitive workflows.',
     tags: ['LLM Integrations', 'Workflow Automation', 'Predictive Models'],
-    image: '/services/04_ai.png'
+    image: '/services/04_ai.png',
+    badge: 'Autonomous AI',
+    stat: '10x Efficiency',
+    color: 'from-[#10B981] to-[#6D4AFF]'
   },
   {
     number: '05',
@@ -41,7 +53,10 @@ const servicesData = [
     title: 'Brand Identity & Content',
     desc: 'We build cohesive brand identities that resonate and endure. Logo, typography, tone of voice, and content strategy — all unified under a single, powerful narrative.',
     tags: ['Visual Identity', 'Copywriting', 'Brand Guidelines'],
-    image: '/services/05_brand.png'
+    image: '/services/05_brand.png',
+    badge: 'Iconic Branding',
+    stat: '100% Unique Voice',
+    color: 'from-[#F59E0B] to-[#EC4899]'
   },
   {
     number: '06',
@@ -49,12 +64,16 @@ const servicesData = [
     title: 'Growth & Performance Marketing',
     desc: 'Data-driven campaigns that fill your pipeline. We manage paid media, SEO, conversion optimisation, and analytics to maximise your ROI.',
     tags: ['SEO & SEM', 'Conversion Optimisation', 'Analytics'],
-    image: '/services/06_growth.png'
+    image: '/services/06_growth.png',
+    badge: 'Scalable Growth',
+    stat: '+340% Avg ROI',
+    color: 'from-[#8B5DFF] to-[#3B82F6]'
   },
 ];
 
 export const ServicesSection = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
   // Track scrolling over the 600vh container
@@ -65,9 +84,7 @@ export const ServicesSection = () => {
 
   useEffect(() => {
     return scrollYProgress.on('change', (latest) => {
-      // Divide the 0-1 progress into 6 segments
       const totalServices = servicesData.length;
-      // We use Math.floor but cap it at 5
       const index = Math.min(Math.floor(latest * totalServices), totalServices - 1);
       if (index !== activeIndex) {
         setActiveIndex(index);
@@ -75,40 +92,55 @@ export const ServicesSection = () => {
     });
   }, [scrollYProgress, activeIndex]);
 
+  // Interactive 3D Card Tilt with Mouse
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [12, -12]), { stiffness: 200, damping: 20 });
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-12, 12]), { stiffness: 200, damping: 20 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseXPos = (e.clientX - rect.left) / width - 0.5;
+    const mouseYPos = (e.clientY - rect.top) / height - 0.5;
+    mouseX.set(mouseXPos);
+    mouseY.set(mouseYPos);
+  };
+
+  const handleMouseLeave = () => {
+    mouseX.set(0);
+    mouseY.set(0);
+  };
+
   const activeService = servicesData[activeIndex];
 
-  // Motion variants for the Left Side Text Content reflecting user specifications
-  // Previous -> Move Up, Scale 0.9, RotateX -12
-  // Next -> Starts Scale 0.8, RotateY 18, TranslateY 150px
-  // Center -> Scale 1, Translate 0, Rotate 0
   const contentVariants = {
     enter: {
       opacity: 0,
-      y: 150,
-      scale: 0.8,
-      rotateY: 18,
-      filter: 'blur(8px)'
+      y: 100,
+      scale: 0.9,
+      filter: 'blur(10px)'
     },
     center: {
       opacity: 1,
       y: 0,
       scale: 1,
-      rotateY: 0,
-      rotateX: 0,
       filter: 'blur(0px)',
       transition: {
-        duration: 1,
-        ease: [0.16, 1, 0.3, 1] as any // Power4.out equivalent
+        duration: 0.8,
+        ease: [0.16, 1, 0.3, 1] as any
       }
     },
     exit: {
-      opacity: 0.35,
-      y: -100,
-      scale: 0.9,
-      rotateX: -12,
-      filter: 'blur(8px)',
+      opacity: 0,
+      y: -80,
+      scale: 0.95,
+      filter: 'blur(10px)',
       transition: {
-        duration: 1,
+        duration: 0.6,
         ease: [0.16, 1, 0.3, 1] as any
       }
     }
@@ -117,23 +149,27 @@ export const ServicesSection = () => {
   return (
     <section ref={containerRef} className="relative bg-[#FCFCFC] h-[600vh]">
       {/* Sticky Full-Screen Container */}
-      <div className="sticky top-0 left-0 w-full h-screen overflow-hidden flex flex-col md:flex-row">
+      <div className="sticky top-0 left-0 w-full h-screen overflow-hidden flex flex-col md:flex-row items-center justify-between">
         
-        {/* Left Column (45%) - Typography & Content */}
-        <div className="w-full md:w-[45%] h-[50vh] md:h-full flex flex-col justify-center px-8 md:px-16 lg:px-24 z-20 relative">
+        {/* Ambient Subtle Background Elements */}
+        <div className="absolute top-1/4 left-10 w-96 h-96 bg-[#6D4AFF]/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/4 right-10 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
+
+        {/* Left Column (48%) - Typography & Content */}
+        <div className="w-full md:w-[48%] h-[50vh] md:h-full flex flex-col justify-center px-8 md:px-16 lg:px-24 z-20 relative">
           
-          {/* Progress Indicator (Static overlay on left) */}
-          <div className="absolute top-12 lg:top-24 left-8 lg:left-24 flex items-center gap-4">
-            <div className="w-12 h-[2px] bg-black/10 overflow-hidden rounded-full">
-               <motion.div 
-                 className="h-full bg-[#6D4AFF]"
-                 style={{ width: `${(activeIndex + 1) / 6 * 100}%` }}
-                 layout
-                 transition={{ duration: 0.5 }}
-               />
+          {/* Progress Bar & Header */}
+          <div className="absolute top-10 lg:top-16 left-8 lg:left-24 flex items-center gap-4 z-30">
+            <div className="w-16 h-[3px] bg-black/10 overflow-hidden rounded-full">
+              <motion.div 
+                className="h-full bg-gradient-to-r from-[#6D4AFF] to-[#8B5DFF]"
+                style={{ width: `${((activeIndex + 1) / servicesData.length) * 100}%` }}
+                layout
+                transition={{ duration: 0.4 }}
+              />
             </div>
-            <span className="text-xs font-mono font-bold text-gray-400">
-              0{activeIndex + 1} <span className="opacity-40">/ 06</span>
+            <span className="text-xs font-mono font-bold tracking-wider text-gray-500">
+              <span className="text-[#6D4AFF]">0{activeIndex + 1}</span> / 06
             </span>
           </div>
 
@@ -144,58 +180,94 @@ export const ServicesSection = () => {
               initial="enter"
               animate="center"
               exit="exit"
-              className="flex flex-col items-start w-full"
-              style={{ perspective: 1000 }} // Enable 3D transforms for rotateX/Y
+              className="flex flex-col items-start w-full relative"
             >
+              {/* Huge Watermark Service Number */}
+              <span className="text-[12rem] md:text-[14rem] font-black text-black/[0.025] select-none absolute -top-28 -left-8 font-heading pointer-events-none leading-none">
+                {activeService.number}
+              </span>
+
               {/* Category Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#6D4AFF]/5 border border-[#6D4AFF]/10 text-[#6D4AFF] text-[11px] font-bold tracking-widest uppercase mb-8 shadow-sm">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#6D4AFF]/10 to-[#8B5DFF]/10 border border-[#6D4AFF]/20 text-[#6D4AFF] text-xs font-bold tracking-widest uppercase mb-6 shadow-sm backdrop-blur-md">
+                <Sparkles className="w-3.5 h-3.5 text-[#6D4AFF] animate-pulse" />
                 {activeService.category}
               </div>
 
               {/* Title */}
-              <h2 className="text-4xl md:text-5xl lg:text-7xl font-extrabold text-[#111111] leading-[1.05] tracking-tight font-heading mb-6">
+              <h2 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-[#111111] leading-[1.05] tracking-tight font-heading mb-6">
                 {activeService.title}
               </h2>
 
               {/* Description */}
-              <p className="text-gray-500 text-sm md:text-lg leading-relaxed max-w-lg mb-10 font-medium">
+              <p className="text-stone-500 text-sm md:text-base lg:text-lg leading-relaxed max-w-lg mb-8 font-medium">
                 {activeService.desc}
               </p>
 
               {/* Feature Tags */}
-              <div className="flex flex-wrap gap-3 mb-12">
+              <div className="flex flex-wrap gap-2.5 mb-10">
                 {activeService.tags.map((tag, i) => (
                   <motion.div
                     key={tag}
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 + i * 0.1, duration: 0.5 }}
-                    className="px-4 py-2 rounded-xl bg-white border border-black/[0.04] text-xs font-bold text-gray-600 shadow-[0_4px_20px_rgba(0,0,0,0.03)]"
+                    transition={{ delay: 0.2 + i * 0.08, duration: 0.4 }}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-stone-200/80 text-xs font-bold text-stone-700 shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:border-[#6D4AFF]/40 hover:text-[#6D4AFF] transition-all"
                   >
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#6D4AFF]" />
                     {tag}
                   </motion.div>
                 ))}
               </div>
 
-              {/* CTA */}
-              <motion.button
-                whileHover={{ scale: 1.02, x: 5 }}
-                whileTap={{ scale: 0.98 }}
-                className="flex items-center gap-3 group"
-              >
-                <div className="w-12 h-12 rounded-full bg-[#111111] text-white flex items-center justify-center transition-transform group-hover:bg-[#6D4AFF] shadow-lg shadow-black/10">
-                  <ArrowUpRight className="w-5 h-5 transition-transform group-hover:rotate-12" />
-                </div>
-                <span className="font-bold text-sm tracking-wide uppercase text-[#111111] group-hover:text-[#6D4AFF] transition-colors">
-                  Explore Service
-                </span>
-              </motion.button>
+              {/* Action Buttons */}
+              <div className="flex items-center gap-6">
+                <motion.button
+                  whileHover={{ scale: 1.03, x: 4 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="relative group overflow-hidden px-7 py-3.5 bg-[#111111] hover:bg-[#6D4AFF] text-white text-xs font-bold rounded-full tracking-wider transition-all duration-300 uppercase shadow-xl shadow-black/10 flex items-center gap-3"
+                >
+                  <span className="relative z-10">EXPLORE SERVICE</span>
+                  <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center transition-transform group-hover:rotate-45">
+                    <ArrowUpRight className="w-4 h-4 text-white" />
+                  </div>
+                </motion.button>
+              </div>
+
             </motion.div>
           </AnimatePresence>
+
+          {/* Quick Service Navigator Tabs */}
+          <div className="absolute bottom-10 left-8 lg:left-24 flex items-center gap-2 z-30">
+            {servicesData.map((svc, idx) => (
+              <button
+                key={svc.number}
+                onClick={() => {
+                  if (containerRef.current) {
+                    const sectionTop = containerRef.current.offsetTop;
+                    const sectionHeight = containerRef.current.clientHeight;
+                    const targetScroll = sectionTop + (idx / servicesData.length) * sectionHeight;
+                    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+                  }
+                }}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  activeIndex === idx 
+                    ? 'w-8 bg-[#6D4AFF]' 
+                    : 'w-2 bg-stone-300 hover:bg-stone-400'
+                }`}
+                title={svc.title}
+              />
+            ))}
+          </div>
+
         </div>
 
-        {/* Right Column (55%) - Glassmorphism 3D Image Showcase */}
-        <div className="w-full md:w-[55%] h-[50vh] md:h-full relative bg-transparent z-10 flex items-center justify-center p-6 md:p-12 lg:p-16">
+        {/* Right Column (52%) - Ultra-Futuristic Glassmorphic 3D Card */}
+        <div 
+          ref={cardRef}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          className="w-full md:w-[52%] h-[50vh] md:h-full relative bg-transparent z-10 flex items-center justify-center p-6 md:p-12 lg:p-16"
+        >
           <AnimatePresence mode="wait">
             <motion.div
               key={activeIndex}
@@ -203,41 +275,61 @@ export const ServicesSection = () => {
               animate={{ opacity: 1, scale: 1, y: 0, rotateY: 0 }}
               exit={{ opacity: 0, scale: 1.05, y: -60, rotateY: -15 }}
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="relative w-full max-w-xl aspect-[4/3] flex items-center justify-center perspective-[1200px]"
+              style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
+              className="relative w-full max-w-xl aspect-[16/11] flex items-center justify-center perspective-[1200px]"
             >
-              {/* Outer Ambient Glowing Aura */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-[#6D4AFF]/30 via-[#8B5DFF]/25 to-purple-500/20 rounded-[3rem] blur-3xl -z-10 animate-pulse" />
+              {/* Outer Ambient Multi-Color Radial Glow */}
+              <div className={`absolute inset-0 bg-gradient-to-tr ${activeService.color} opacity-30 rounded-[3rem] blur-3xl -z-10 animate-pulse transition-all duration-1000`} />
 
-              {/* Glowing Gradient Border Frame */}
-              <div className="relative w-full h-full p-[2px] rounded-[2.5rem] bg-gradient-to-br from-[#6D4AFF] via-[#8B5DFF]/60 to-[#6D4AFF]/20 shadow-[0_25px_60px_rgba(109,74,255,0.22)] group transition-all duration-500">
+              {/* Sleek Dark Glassmorphism Shell */}
+              <div className="relative w-full h-full p-[2px] rounded-[2.5rem] bg-gradient-to-br from-white/80 via-white/20 to-[#6D4AFF]/40 shadow-[0_30px_80px_rgba(109,74,255,0.25)] transition-all duration-500 group">
                 
-                {/* Glassmorphic Inner Container */}
-                <div className="w-full h-full rounded-[2.4rem] bg-white/40 backdrop-blur-2xl border border-white/60 p-6 md:p-8 flex items-center justify-center relative overflow-hidden shadow-inner">
+                <div className="w-full h-full rounded-[2.4rem] bg-gradient-to-b from-stone-900/90 via-stone-900/85 to-purple-950/90 backdrop-blur-3xl p-6 md:p-10 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl border border-white/10">
                   
-                  {/* Subtle Glass Reflection Highlight */}
-                  <div className="absolute -top-24 -left-24 w-64 h-64 bg-white/40 rounded-full blur-2xl pointer-events-none" />
-                  <div className="absolute -bottom-20 -right-20 w-56 h-56 bg-[#6D4AFF]/10 rounded-full blur-2xl pointer-events-none" />
+                  {/* Top Glass Highlights & Badge */}
+                  <div className="absolute top-5 left-6 right-6 flex items-center justify-between z-20">
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-white/90 text-[11px] font-bold tracking-wider uppercase">
+                      <Zap className="w-3 h-3 text-[#8B5DFF]" />
+                      {activeService.badge}
+                    </div>
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#6D4AFF]/20 backdrop-blur-md border border-[#6D4AFF]/30 text-[#8B5DFF] text-[11px] font-mono font-bold">
+                      <ShieldCheck className="w-3 h-3 text-[#6D4AFF]" />
+                      {activeService.stat}
+                    </div>
+                  </div>
 
-                  {/* Floating 3D Pop-Out Image */}
-                  <motion.img 
-                    src={activeService.image} 
-                    alt={activeService.title}
-                    className="max-w-full max-h-full object-contain filter drop-shadow-[0_20px_35px_rgba(109,74,255,0.3)] z-10 transition-transform duration-500 hover:scale-105"
-                    animate={{ 
-                      y: [0, -12, 0],
-                      rotateZ: [0, 1.5, 0, -1.5, 0]
-                    }}
-                    transition={{ 
-                      duration: 6, 
-                      ease: "easeInOut", 
-                      repeat: Infinity 
-                    }}
-                  />
+                  {/* Ambient Interior Light Beams */}
+                  <div className="absolute -top-24 -left-24 w-72 h-72 bg-[#6D4AFF]/30 rounded-full blur-3xl pointer-events-none" />
+                  <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
+
+                  {/* Dynamic Floating 3D Pop-Out Image */}
+                  <div className="relative z-10 w-full h-full flex items-center justify-center mt-4">
+                    <motion.img 
+                      src={activeService.image} 
+                      alt={activeService.title}
+                      className="max-w-[92%] max-h-[88%] object-contain filter drop-shadow-[0_25px_40px_rgba(0,0,0,0.6)] transition-all duration-500 group-hover:scale-105"
+                      animate={{ 
+                        y: [0, -14, 0],
+                        rotateZ: [0, 1, 0, -1, 0]
+                      }}
+                      transition={{ 
+                        duration: 5, 
+                        ease: "easeInOut", 
+                        repeat: Infinity 
+                      }}
+                    />
+                  </div>
+
+                  {/* Bottom Gloss Line Accent */}
+                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#8B5DFF]/60 to-transparent" />
+
                 </div>
               </div>
+
             </motion.div>
           </AnimatePresence>
         </div>
+
       </div>
     </section>
   );
