@@ -149,125 +149,128 @@ export const ServicesSection = () => {
   return (
     <section ref={containerRef} className="relative bg-[#FCFCFC] h-[600vh]">
       {/* Sticky Full-Screen Container */}
-      <div className="sticky top-0 left-0 w-full h-screen overflow-hidden flex flex-col md:flex-row items-center justify-between">
+      <div className="sticky top-0 left-0 w-full h-screen overflow-hidden flex items-center justify-center">
         
         {/* Ambient Subtle Background Elements */}
         <div className="absolute top-1/4 left-10 w-96 h-96 bg-[#6D4AFF]/5 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-1/4 right-10 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Left Column (54%) - Typography & Content */}
-        <div className="w-full md:w-[54%] h-[50vh] md:h-full flex flex-col justify-center px-6 md:pl-12 md:pr-2 lg:pl-20 lg:pr-4 z-20 relative">
-          
-          {/* Progress Bar & Header */}
-          <div className="absolute top-10 lg:top-16 left-6 lg:left-20 flex items-center gap-4 z-30">
-            <div className="w-16 h-[3px] bg-black/10 overflow-hidden rounded-full">
-              <motion.div 
-                className="h-full bg-gradient-to-r from-[#6D4AFF] to-[#8B5DFF]"
-                style={{ width: `${((activeIndex + 1) / servicesData.length) * 100}%` }}
-                layout
-                transition={{ duration: 0.4 }}
-              />
-            </div>
-            <span className="text-xs font-mono font-bold tracking-wider text-gray-500">
-              <span className="text-[#6D4AFF]">0{activeIndex + 1}</span> / 06
-            </span>
-          </div>
+        {/* Centered Content Wrapper (Tight spacing on wide screens) */}
+        <div className="max-w-7xl w-full h-full mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center justify-between relative z-20 gap-4 lg:gap-8">
 
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeIndex}
-              variants={contentVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              className="flex flex-col items-start w-full relative"
-            >
-              {/* Huge Watermark Service Number */}
-              <span className="text-[12rem] md:text-[14rem] font-black text-black/[0.025] select-none absolute -top-28 -left-8 font-heading pointer-events-none leading-none">
-                {activeService.number}
+          {/* Left Column (50%) - Typography & Content */}
+          <div className="w-full md:w-[50%] h-[50vh] md:h-full flex flex-col justify-center relative">
+            
+            {/* Progress Bar & Header */}
+            <div className="absolute top-10 lg:top-16 left-0 flex items-center gap-4 z-30">
+              <div className="w-16 h-[3px] bg-black/10 overflow-hidden rounded-full">
+                <motion.div 
+                  className="h-full bg-gradient-to-r from-[#6D4AFF] to-[#8B5DFF]"
+                  style={{ width: `${((activeIndex + 1) / servicesData.length) * 100}%` }}
+                  layout
+                  transition={{ duration: 0.4 }}
+                />
+              </div>
+              <span className="text-xs font-mono font-bold tracking-wider text-gray-500">
+                <span className="text-[#6D4AFF]">0{activeIndex + 1}</span> / 06
               </span>
+            </div>
 
-              {/* Category Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#6D4AFF]/10 to-[#8B5DFF]/10 border border-[#6D4AFF]/20 text-[#6D4AFF] text-xs font-bold tracking-widest uppercase mb-6 shadow-sm backdrop-blur-md">
-                <Sparkles className="w-3.5 h-3.5 text-[#6D4AFF] animate-pulse" />
-                {activeService.category}
-              </div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeIndex}
+                variants={contentVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                className="flex flex-col items-start w-full relative"
+              >
+                {/* Huge Watermark Service Number */}
+                <span className="text-[12rem] md:text-[14rem] font-black text-black/[0.025] select-none absolute -top-28 -left-8 font-heading pointer-events-none leading-none">
+                  {activeService.number}
+                </span>
 
-              {/* Title */}
-              <h2 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-[#111111] leading-[1.05] tracking-tight font-heading mb-6">
-                {activeService.title}
-              </h2>
+                {/* Category Badge */}
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#6D4AFF]/10 to-[#8B5DFF]/10 border border-[#6D4AFF]/20 text-[#6D4AFF] text-xs font-bold tracking-widest uppercase mb-6 shadow-sm backdrop-blur-md">
+                  <Sparkles className="w-3.5 h-3.5 text-[#6D4AFF] animate-pulse" />
+                  {activeService.category}
+                </div>
 
-              {/* Description */}
-              <p className="text-stone-500 text-sm md:text-base lg:text-lg leading-relaxed max-w-lg mb-8 font-medium">
-                {activeService.desc}
-              </p>
+                {/* Title */}
+                <h2 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-[#111111] leading-[1.05] tracking-tight font-heading mb-6">
+                  {activeService.title}
+                </h2>
 
-              {/* Feature Tags */}
-              <div className="flex flex-wrap gap-2.5 mb-10">
-                {activeService.tags.map((tag, i) => (
-                  <motion.div
-                    key={tag}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 + i * 0.08, duration: 0.4 }}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-stone-200/80 text-xs font-bold text-stone-700 shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:border-[#6D4AFF]/40 hover:text-[#6D4AFF] transition-all"
+                {/* Description */}
+                <p className="text-stone-500 text-sm md:text-base lg:text-lg leading-relaxed max-w-lg mb-8 font-medium">
+                  {activeService.desc}
+                </p>
+
+                {/* Feature Tags */}
+                <div className="flex flex-wrap gap-2.5 mb-10">
+                  {activeService.tags.map((tag, i) => (
+                    <motion.div
+                      key={tag}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 + i * 0.08, duration: 0.4 }}
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-stone-200/80 text-xs font-bold text-stone-700 shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:border-[#6D4AFF]/40 hover:text-[#6D4AFF] transition-all"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#6D4AFF]" />
+                      {tag}
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-center gap-6">
+                  <motion.button
+                    whileHover={{ scale: 1.03, x: 4 }}
+                    whileTap={{ scale: 0.97 }}
+                    className="relative group overflow-hidden px-7 py-3.5 bg-[#111111] hover:bg-[#6D4AFF] text-white text-xs font-bold rounded-full tracking-wider transition-all duration-300 uppercase shadow-xl shadow-black/10 flex items-center gap-3"
                   >
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#6D4AFF]" />
-                    {tag}
-                  </motion.div>
-                ))}
-              </div>
+                    <span className="relative z-10">EXPLORE SERVICE</span>
+                    <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center transition-transform group-hover:rotate-45">
+                      <ArrowUpRight className="w-4 h-4 text-white" />
+                    </div>
+                  </motion.button>
+                </div>
 
-              {/* Action Buttons */}
-              <div className="flex items-center gap-6">
-                <motion.button
-                  whileHover={{ scale: 1.03, x: 4 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="relative group overflow-hidden px-7 py-3.5 bg-[#111111] hover:bg-[#6D4AFF] text-white text-xs font-bold rounded-full tracking-wider transition-all duration-300 uppercase shadow-xl shadow-black/10 flex items-center gap-3"
-                >
-                  <span className="relative z-10">EXPLORE SERVICE</span>
-                  <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center transition-transform group-hover:rotate-45">
-                    <ArrowUpRight className="w-4 h-4 text-white" />
-                  </div>
-                </motion.button>
-              </div>
+              </motion.div>
+            </AnimatePresence>
 
-            </motion.div>
-          </AnimatePresence>
+            {/* Quick Service Navigator Tabs */}
+            <div className="absolute bottom-10 left-0 flex items-center gap-2 z-30">
+              {servicesData.map((svc, idx) => (
+                <button
+                  key={svc.number}
+                  onClick={() => {
+                    if (containerRef.current) {
+                      const sectionTop = containerRef.current.offsetTop;
+                      const sectionHeight = containerRef.current.clientHeight;
+                      const targetScroll = sectionTop + (idx / servicesData.length) * sectionHeight;
+                      window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+                    }
+                  }}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    activeIndex === idx 
+                      ? 'w-8 bg-[#6D4AFF]' 
+                      : 'w-2 bg-stone-300 hover:bg-stone-400'
+                  }`}
+                  title={svc.title}
+                />
+              ))}
+            </div>
 
-          {/* Quick Service Navigator Tabs */}
-          <div className="absolute bottom-10 left-6 lg:left-20 flex items-center gap-2 z-30">
-            {servicesData.map((svc, idx) => (
-              <button
-                key={svc.number}
-                onClick={() => {
-                  if (containerRef.current) {
-                    const sectionTop = containerRef.current.offsetTop;
-                    const sectionHeight = containerRef.current.clientHeight;
-                    const targetScroll = sectionTop + (idx / servicesData.length) * sectionHeight;
-                    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
-                  }
-                }}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  activeIndex === idx 
-                    ? 'w-8 bg-[#6D4AFF]' 
-                    : 'w-2 bg-stone-300 hover:bg-stone-400'
-                }`}
-                title={svc.title}
-              />
-            ))}
           </div>
 
-        </div>
-
-        {/* Right Column (46%) - Floating 3D Transparent Showcase */}
-        <div 
-          ref={cardRef}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-          className="w-full md:w-[46%] h-[50vh] md:h-full relative bg-transparent z-10 flex items-center justify-start p-2 md:p-4 lg:p-6"
-        >
+          {/* Right Column (50%) - Floating 3D Transparent Showcase */}
+          <div 
+            ref={cardRef}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            className="w-full md:w-[50%] h-[50vh] md:h-full relative bg-transparent z-10 flex items-center justify-center p-0 md:p-2"
+          >
           <AnimatePresence mode="wait">
             <motion.div
               key={activeIndex}
