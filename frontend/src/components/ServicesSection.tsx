@@ -261,7 +261,7 @@ export const ServicesSection = () => {
 
         </div>
 
-        {/* Right Column (52%) - Ultra-Futuristic Glassmorphic 3D Card */}
+        {/* Right Column (52%) - Floating 3D Transparent Showcase (No Background Box) */}
         <div 
           ref={cardRef}
           onMouseMove={handleMouseMove}
@@ -276,55 +276,36 @@ export const ServicesSection = () => {
               exit={{ opacity: 0, scale: 1.05, y: -60, rotateY: -15 }}
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
               style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
-              className="relative w-full max-w-xl aspect-[16/11] flex items-center justify-center perspective-[1200px]"
+              className="relative w-full max-w-2xl h-full flex items-center justify-center perspective-[1200px]"
             >
-              {/* Outer Ambient Multi-Color Radial Glow */}
-              <div className={`absolute inset-0 bg-gradient-to-tr ${activeService.color} opacity-30 rounded-[3rem] blur-3xl -z-10 animate-pulse transition-all duration-1000`} />
+              {/* Soft Ambient Colorful Background Glow */}
+              <div className={`absolute inset-10 bg-gradient-to-tr ${activeService.color} opacity-25 rounded-full blur-[100px] -z-10 animate-pulse transition-all duration-1000`} />
 
-              {/* Sleek Dark Glassmorphism Shell */}
-              <div className="relative w-full h-full p-[2px] rounded-[2.5rem] bg-gradient-to-br from-white/80 via-white/20 to-[#6D4AFF]/40 shadow-[0_30px_80px_rgba(109,74,255,0.25)] transition-all duration-500 group">
-                
-                <div className="w-full h-full rounded-[2.4rem] bg-gradient-to-b from-stone-900/90 via-stone-900/85 to-purple-950/90 backdrop-blur-3xl p-6 md:p-10 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl border border-white/10">
-                  
-                  {/* Top Glass Highlights & Badge */}
-                  <div className="absolute top-5 left-6 right-6 flex items-center justify-between z-20">
-                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-white/90 text-[11px] font-bold tracking-wider uppercase">
-                      <Zap className="w-3 h-3 text-[#8B5DFF]" />
-                      {activeService.badge}
-                    </div>
-                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#6D4AFF]/20 backdrop-blur-md border border-[#6D4AFF]/30 text-[#8B5DFF] text-[11px] font-mono font-bold">
-                      <ShieldCheck className="w-3 h-3 text-[#6D4AFF]" />
-                      {activeService.stat}
-                    </div>
-                  </div>
-
-                  {/* Ambient Interior Light Beams */}
-                  <div className="absolute -top-24 -left-24 w-72 h-72 bg-[#6D4AFF]/30 rounded-full blur-3xl pointer-events-none" />
-                  <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
-
-                  {/* Dynamic Floating 3D Pop-Out Image */}
-                  <div className="relative z-10 w-full h-full flex items-center justify-center mt-4">
-                    <motion.img 
-                      src={activeService.image} 
-                      alt={activeService.title}
-                      className="max-w-[92%] max-h-[88%] object-contain filter drop-shadow-[0_25px_40px_rgba(0,0,0,0.6)] transition-all duration-500 group-hover:scale-105"
-                      animate={{ 
-                        y: [0, -14, 0],
-                        rotateZ: [0, 1, 0, -1, 0]
-                      }}
-                      transition={{ 
-                        duration: 5, 
-                        ease: "easeInOut", 
-                        repeat: Infinity 
-                      }}
-                    />
-                  </div>
-
-                  {/* Bottom Gloss Line Accent */}
-                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#8B5DFF]/60 to-transparent" />
-
-                </div>
+              {/* Floating Floating Pill Badges */}
+              <div className="absolute top-4 left-4 z-20 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur-md border border-black/5 text-[#6D4AFF] text-xs font-bold shadow-lg shadow-purple-500/10">
+                <Zap className="w-3.5 h-3.5 text-[#6D4AFF]" />
+                {activeService.badge}
               </div>
+              <div className="absolute top-4 right-4 z-20 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur-md border border-black/5 text-stone-800 text-xs font-mono font-bold shadow-lg shadow-purple-500/10">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#6D4AFF]" />
+                {activeService.stat}
+              </div>
+
+              {/* Directly Floating Transparent Image */}
+              <motion.img 
+                src={activeService.image} 
+                alt={activeService.title}
+                className="max-w-full max-h-[80vh] w-auto h-auto object-contain filter drop-shadow-[0_20px_40px_rgba(109,74,255,0.25)] z-10 transition-transform duration-300 hover:scale-105"
+                animate={{ 
+                  y: [0, -16, 0],
+                  rotateZ: [0, 1.2, 0, -1.2, 0]
+                }}
+                transition={{ 
+                  duration: 6, 
+                  ease: "easeInOut", 
+                  repeat: Infinity 
+                }}
+              />
 
             </motion.div>
           </AnimatePresence>
