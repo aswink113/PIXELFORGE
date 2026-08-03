@@ -122,7 +122,7 @@ export const ServicesSection = () => {
             <div className="w-12 h-[2px] bg-black/10 overflow-hidden rounded-full">
                <motion.div 
                  className="h-full bg-[#6D4AFF]"
-                 style={{ width: \`\${(activeIndex + 1) / 6 * 100}%\` }}
+                 style={{ width: `${(activeIndex + 1) / 6 * 100}%` }}
                  layout
                  transition={{ duration: 0.5 }}
                />
