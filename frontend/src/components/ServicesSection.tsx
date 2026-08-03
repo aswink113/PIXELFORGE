@@ -1,138 +1,198 @@
-import { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { useRef, useState, useEffect } from 'react';
+import { motion, useScroll, AnimatePresence } from 'framer-motion';
+import { ServicesCanvas } from './Services3D/ServicesCanvas';
+import { ArrowUpRight } from 'lucide-react';
 
-const services = [
+const servicesData = [
   {
     number: '01',
+    category: 'Digital Strategy',
     title: 'Digital Strategy & Consulting',
     desc: 'We analyse your market, define your digital roadmap, and create a blueprint for sustainable growth. From UX audits to tech stack decisions — we guide every strategic move.',
-    icon: (
-      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-      </svg>
-    ),
+    tags: ['Market Analysis', 'Tech Stack Design', 'Growth Roadmaps']
   },
   {
     number: '02',
+    category: 'Experience Design',
     title: 'UI/UX Design & Prototyping',
     desc: 'We craft intuitive, visually stunning interfaces grounded in user psychology. Every design decision is purposeful, every interaction delightful.',
-    icon: (
-      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-      </svg>
-    ),
+    tags: ['Wireframing', 'Design Systems', 'Interactive Prototypes']
   },
   {
     number: '03',
+    category: 'Engineering',
     title: 'Web & Mobile Development',
     desc: 'From high-performance React applications to native mobile apps — we build scalable, maintainable software that grows with your business.',
-    icon: (
-      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-      </svg>
-    ),
+    tags: ['React & Next.js', 'React Native', 'Cloud Architecture']
   },
   {
     number: '04',
+    category: 'Machine Learning',
     title: 'AI Integration & Automation',
     desc: 'We embed intelligent capabilities into your products — from custom LLM integrations to automated pipelines that eliminate repetitive workflows.',
-    icon: (
-      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-      </svg>
-    ),
+    tags: ['LLM Integrations', 'Workflow Automation', 'Predictive Models']
   },
   {
     number: '05',
+    category: 'Brand Strategy',
     title: 'Brand Identity & Content',
     desc: 'We build cohesive brand identities that resonate and endure. Logo, typography, tone of voice, and content strategy — all unified under a single, powerful narrative.',
-    icon: (
-      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-      </svg>
-    ),
+    tags: ['Visual Identity', 'Copywriting', 'Brand Guidelines']
   },
   {
     number: '06',
+    category: 'Marketing',
     title: 'Growth & Performance Marketing',
     desc: 'Data-driven campaigns that fill your pipeline. We manage paid media, SEO, conversion optimisation, and analytics to maximise your ROI.',
-    icon: (
-      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-      </svg>
-    ),
+    tags: ['SEO & SEM', 'Conversion Optimisation', 'Analytics']
   },
 ];
 
-const containerVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.06 } },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as const } },
-};
-
 export const ServicesSection = () => {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: '-100px' });
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  // Track scrolling over the 600vh container
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ['start start', 'end end']
+  });
+
+  useEffect(() => {
+    return scrollYProgress.on('change', (latest) => {
+      // Divide the 0-1 progress into 6 segments
+      const totalServices = servicesData.length;
+      // We use Math.floor but cap it at 5
+      const index = Math.min(Math.floor(latest * totalServices), totalServices - 1);
+      if (index !== activeIndex) {
+        setActiveIndex(index);
+      }
+    });
+  }, [scrollYProgress, activeIndex]);
+
+  const activeService = servicesData[activeIndex];
+
+  // Motion variants for the Left Side Text Content reflecting user specifications
+  // Previous -> Move Up, Scale 0.9, RotateX -12
+  // Next -> Starts Scale 0.8, RotateY 18, TranslateY 150px
+  // Center -> Scale 1, Translate 0, Rotate 0
+  const contentVariants = {
+    enter: {
+      opacity: 0,
+      y: 150,
+      scale: 0.8,
+      rotateY: 18,
+      filter: 'blur(8px)'
+    },
+    center: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      rotateY: 0,
+      rotateX: 0,
+      filter: 'blur(0px)',
+      transition: {
+        duration: 1,
+        ease: [0.16, 1, 0.3, 1] // Power4.out equivalent
+      }
+    },
+    exit: {
+      opacity: 0.35,
+      y: -100,
+      scale: 0.9,
+      rotateX: -12,
+      filter: 'blur(8px)',
+      transition: {
+        duration: 1,
+        ease: [0.16, 1, 0.3, 1]
+      }
+    }
+  };
 
   return (
-    <section id="services" ref={ref} className="py-28 bg-[#FCFCFC] border-t border-black/[0.01]">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-20 flex flex-col md:flex-row md:items-end justify-between gap-6"
-        >
-          <div className="max-w-xl">
-            <span className="text-xs font-bold uppercase tracking-[0.25em] text-[#5E5BFF] block mb-3">
-              What We Do
+    <section ref={containerRef} className="relative bg-[#FCFCFC] h-[600vh]">
+      {/* Sticky Full-Screen Container */}
+      <div className="sticky top-0 left-0 w-full h-screen overflow-hidden flex flex-col md:flex-row">
+        
+        {/* Left Column (45%) - Typography & Content */}
+        <div className="w-full md:w-[45%] h-[50vh] md:h-full flex flex-col justify-center px-8 md:px-16 lg:px-24 z-20 relative">
+          
+          {/* Progress Indicator (Static overlay on left) */}
+          <div className="absolute top-12 lg:top-24 left-8 lg:left-24 flex items-center gap-4">
+            <div className="w-12 h-[2px] bg-black/10 overflow-hidden rounded-full">
+               <motion.div 
+                 className="h-full bg-[#6D4AFF]"
+                 style={{ width: \`\${(activeIndex + 1) / 6 * 100}%\` }}
+                 layout
+                 transition={{ duration: 0.5 }}
+               />
+            </div>
+            <span className="text-xs font-mono font-bold text-gray-400">
+              0{activeIndex + 1} <span className="opacity-40">/ 06</span>
             </span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-[#111111] tracking-tight font-heading leading-tight">
-              End-to-End Digital Services
-            </h2>
           </div>
-          <div className="max-w-md">
-            <p className="text-gray-500 text-sm md:text-base leading-relaxed">
-              A holistic suite of premium digital services designed to take your brand from initial concept to dominant market leader.
-            </p>
-          </div>
-        </motion.div>
 
-        {/* Clean Minimalist Cards Grid */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate={inView ? 'visible' : 'hidden'}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
-        >
-          {services.map((svc, i) => (
+          <AnimatePresence mode="wait">
             <motion.div
-              key={i}
-              variants={itemVariants}
-              className="group p-8 rounded-2xl border border-black/[0.04] bg-white transition-all duration-300 hover:border-[#5E5BFF]/30 hover:shadow-[0_12px_40px_rgba(0,0,0,0.02)]"
+              key={activeIndex}
+              variants={contentVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              className="flex flex-col items-start w-full"
+              style={{ perspective: 1000 }} // Enable 3D transforms for rotateX/Y
             >
-              <div className="flex items-center justify-between mb-6">
-                <div className="w-10 h-10 rounded-xl bg-[#5E5BFF]/5 text-[#5E5BFF] flex items-center justify-center transition-colors duration-300 group-hover:bg-[#5E5BFF] group-hover:text-white">
-                  {svc.icon}
-                </div>
-                <span className="text-xs font-mono font-bold text-gray-300 group-hover:text-[#5E5BFF]/50 transition-colors">
-                  {svc.number}
-                </span>
+              {/* Category Badge */}
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#6D4AFF]/5 border border-[#6D4AFF]/10 text-[#6D4AFF] text-[11px] font-bold tracking-widest uppercase mb-8 shadow-sm">
+                {activeService.category}
               </div>
-              <h3 className="text-lg font-bold text-[#111111] tracking-tight mb-3 font-heading">
-                {svc.title}
-              </h3>
-              <p className="text-gray-500 text-xs md:text-[13px] leading-relaxed">
-                {svc.desc}
+
+              {/* Title */}
+              <h2 className="text-4xl md:text-5xl lg:text-7xl font-extrabold text-[#111111] leading-[1.05] tracking-tight font-heading mb-6">
+                {activeService.title}
+              </h2>
+
+              {/* Description */}
+              <p className="text-gray-500 text-sm md:text-lg leading-relaxed max-w-lg mb-10 font-medium">
+                {activeService.desc}
               </p>
+
+              {/* Feature Tags */}
+              <div className="flex flex-wrap gap-3 mb-12">
+                {activeService.tags.map((tag, i) => (
+                  <motion.div
+                    key={tag}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 + i * 0.1, duration: 0.5 }}
+                    className="px-4 py-2 rounded-xl bg-white border border-black/[0.04] text-xs font-bold text-gray-600 shadow-[0_4px_20px_rgba(0,0,0,0.03)]"
+                  >
+                    {tag}
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* CTA */}
+              <motion.button
+                whileHover={{ scale: 1.02, x: 5 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex items-center gap-3 group"
+              >
+                <div className="w-12 h-12 rounded-full bg-[#111111] text-white flex items-center justify-center transition-transform group-hover:bg-[#6D4AFF] shadow-lg shadow-black/10">
+                  <ArrowUpRight className="w-5 h-5 transition-transform group-hover:rotate-12" />
+                </div>
+                <span className="font-bold text-sm tracking-wide uppercase text-[#111111] group-hover:text-[#6D4AFF] transition-colors">
+                  Explore Service
+                </span>
+              </motion.button>
             </motion.div>
-          ))}
-        </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Right Column (55%) - 3D Visuals */}
+        <div className="w-full md:w-[55%] h-[50vh] md:h-full relative bg-transparent z-10 cursor-pointer">
+          <ServicesCanvas activeServiceIndex={activeIndex} />
+        </div>
       </div>
     </section>
   );
