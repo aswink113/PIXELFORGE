@@ -1,6 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, AnimatePresence } from 'framer-motion';
-import { ServicesCanvas } from './Services3D/ServicesCanvas';
 import { ArrowUpRight } from 'lucide-react';
 
 const servicesData = [
@@ -9,42 +8,48 @@ const servicesData = [
     category: 'Digital Strategy',
     title: 'Digital Strategy & Consulting',
     desc: 'We analyse your market, define your digital roadmap, and create a blueprint for sustainable growth. From UX audits to tech stack decisions — we guide every strategic move.',
-    tags: ['Market Analysis', 'Tech Stack Design', 'Growth Roadmaps']
+    tags: ['Market Analysis', 'Tech Stack Design', 'Growth Roadmaps'],
+    image: '/services/01_strategy.png'
   },
   {
     number: '02',
     category: 'Experience Design',
     title: 'UI/UX Design & Prototyping',
     desc: 'We craft intuitive, visually stunning interfaces grounded in user psychology. Every design decision is purposeful, every interaction delightful.',
-    tags: ['Wireframing', 'Design Systems', 'Interactive Prototypes']
+    tags: ['Wireframing', 'Design Systems', 'Interactive Prototypes'],
+    image: '/services/02_uiux.png'
   },
   {
     number: '03',
     category: 'Engineering',
     title: 'Web & Mobile Development',
     desc: 'From high-performance React applications to native mobile apps — we build scalable, maintainable software that grows with your business.',
-    tags: ['React & Next.js', 'React Native', 'Cloud Architecture']
+    tags: ['React & Next.js', 'React Native', 'Cloud Architecture'],
+    image: '/services/03_dev.png'
   },
   {
     number: '04',
     category: 'Machine Learning',
     title: 'AI Integration & Automation',
     desc: 'We embed intelligent capabilities into your products — from custom LLM integrations to automated pipelines that eliminate repetitive workflows.',
-    tags: ['LLM Integrations', 'Workflow Automation', 'Predictive Models']
+    tags: ['LLM Integrations', 'Workflow Automation', 'Predictive Models'],
+    image: '/services/04_ai.png'
   },
   {
     number: '05',
     category: 'Brand Strategy',
     title: 'Brand Identity & Content',
     desc: 'We build cohesive brand identities that resonate and endure. Logo, typography, tone of voice, and content strategy — all unified under a single, powerful narrative.',
-    tags: ['Visual Identity', 'Copywriting', 'Brand Guidelines']
+    tags: ['Visual Identity', 'Copywriting', 'Brand Guidelines'],
+    image: '/services/05_brand.png'
   },
   {
     number: '06',
     category: 'Marketing',
     title: 'Growth & Performance Marketing',
     desc: 'Data-driven campaigns that fill your pipeline. We manage paid media, SEO, conversion optimisation, and analytics to maximise your ROI.',
-    tags: ['SEO & SEM', 'Conversion Optimisation', 'Analytics']
+    tags: ['SEO & SEM', 'Conversion Optimisation', 'Analytics'],
+    image: '/services/06_growth.png'
   },
 ];
 
@@ -189,9 +194,27 @@ export const ServicesSection = () => {
           </AnimatePresence>
         </div>
 
-        {/* Right Column (55%) - 3D Visuals */}
-        <div className="w-full md:w-[55%] h-[50vh] md:h-full relative bg-transparent z-10 cursor-pointer">
-          <ServicesCanvas activeServiceIndex={activeIndex} />
+        {/* Right Column (55%) - Image Visuals */}
+        <div className="w-full md:w-[55%] h-[50vh] md:h-full relative bg-transparent z-10 flex items-center justify-center p-12 lg:p-24 overflow-hidden">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeIndex}
+              initial={{ opacity: 0, scale: 0.9, y: 50, rotateX: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }}
+              exit={{ opacity: 0, scale: 1.05, y: -50, rotateX: -10 }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="w-full h-full flex items-center justify-center perspective-[1000px]"
+            >
+              <motion.img 
+                src={activeService.image} 
+                alt={activeService.title}
+                className="w-full h-auto max-h-[80vh] object-contain drop-shadow-2xl"
+                // Add a subtle continuous floating animation
+                animate={{ y: [0, -15, 0] }}
+                transition={{ duration: 6, ease: "easeInOut", repeat: Infinity }}
+              />
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </section>
