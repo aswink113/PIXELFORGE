@@ -304,6 +304,7 @@ export const ServicesSection = () => {
           </AnimatePresence>
         </div>
 
+        </div>
       </div>
     </section>
   );
