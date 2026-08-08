@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { ArrowUpRight, Sparkles, CheckCircle2, ShieldCheck, Zap } from 'lucide-react';
+import { ArrowUpRight, Sparkles, CheckCircle2 } from 'lucide-react';
 
 const servicesData = [
   {
