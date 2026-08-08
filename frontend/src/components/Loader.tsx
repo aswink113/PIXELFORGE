@@ -48,19 +48,19 @@ export const Loader = ({ onLoadingComplete }: { onLoadingComplete: () => void })
               initial={{ scale: 0.8, opacity: 0, filter: "blur(10px)" }}
               animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
               transition={{ duration: 1.5, ease: "easeOut" }}
-              className="mb-16 flex items-center gap-4 sm:gap-6 md:gap-8 justify-center relative"
+              className="mb-16 flex items-center gap-6 sm:gap-8 md:gap-12 justify-center relative flex-row"
             >
               <motion.img
                 src="/logo.png"
                 alt="LUMIORA Logo"
-                className="h-20 sm:h-24 md:h-36 w-auto object-contain relative z-10 rounded-2xl"
+                className="h-28 sm:h-40 md:h-56 lg:h-64 w-auto object-contain relative z-10 rounded-2xl"
                 style={{ mixBlendMode: 'multiply' }}
                 animate={{ 
                   filter: ["drop-shadow(0 0 20px rgba(59, 130, 246, 0.3))", "drop-shadow(0 0 40px rgba(124, 58, 237, 0.7))", "drop-shadow(0 0 20px rgba(59, 130, 246, 0.3))"]
                 }}
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
               />
-              <span className="text-4xl sm:text-6xl md:text-8xl font-bold tracking-wider text-gradient font-heading z-10 leading-none">
+              <span className="text-5xl sm:text-7xl md:text-9xl lg:text-[10rem] font-bold tracking-wider text-gradient font-heading z-10 leading-none">
                 LUMIORA
               </span>
             </motion.div>
